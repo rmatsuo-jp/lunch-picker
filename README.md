@@ -1,59 +1,60 @@
-# LunchPicker
+# 今日のランチおすすめ (lunch-picker)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.1.
+Google Map に**エリアごとに保存している飲食店リスト**を取り込み、
+**エリア・ジャンル・気分**で絞り込んで「今日のランチ」をおすすめしてくれる Angular アプリです。
 
-## Development server
+- 条件に合うお店の**一覧表示**
+- 条件内から**ランダムで1件を抽選**して提案
+- データはブラウザの **localStorage** に保存（バックエンド不要）。JSON で書き出し／読み込みも可能
 
-To start a local development server, run:
+## Google Map のリストを取り込む手順
 
-```bash
-ng serve
-```
+Google Map の保存リストは [Google Takeout](https://takeout.google.com/) から書き出せます。
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+1. [takeout.google.com](https://takeout.google.com/) にリストを保存しているアカウントでログイン
+2. 「**保存済み (Saved)**」だけを選択（※保存リストを書き出せるのはこの項目です）
+3. エクスポートを実行 → メール通知後にアーカイブをダウンロード
+4. `Takeout/Saved/` の中に**リストごとに1つの CSV**（例: `渋谷.csv`）が入っています
+5. 本アプリの「**取り込み**」画面で、その CSV を選択
 
-## Code scaffolding
+> **注意**: Takeout の CSV に含まれるのは `店名 (Title) / メモ (Note) / URL` のみで、
+> **住所・座標・ジャンル・価格帯は含まれません**。
+> エリアは **CSV のファイル名**（＝Google Map のリスト名）として自動設定されます。
+> **ジャンル**と**気分**は、取り込み後に「取り込み」画面で手動タグ付けしてください。
+> （Google には保存場所を取得する公式 API がないため、自動付与はできません）
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+`sample-data/` に動作確認用のサンプル CSV（`渋谷.csv` / `新宿.csv`）を同梱しています。
 
-```bash
-ng generate component component-name
-```
+## 使い方
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+1. **取り込み画面** … CSV を取り込み、各店に「ジャンル」「気分・その他」タグを付与
+2. **おすすめ画面** … エリア／ジャンル／気分を選んで絞り込み、一覧から選ぶか「ランダムで決めて」で抽選
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 開発
 
 ```bash
-ng test
+npm install
+npm start        # http://localhost:4200 で起動
+npm run build    # 本番ビルド
 ```
 
-## Running end-to-end tests
+## 技術スタック
 
-For end-to-end (e2e) testing, run:
+- Angular 22（standalone components / signals）
+- Angular Material（Material 3 テーマ）
+- papaparse（CSV パース）
+- 永続化: localStorage（JSON 入出力対応）
 
-```bash
-ng e2e
+## データモデル
+
+```ts
+interface Restaurant {
+  id: string;        // 自動採番
+  name: string;      // 店名 (CSV: Title)
+  note?: string;     // メモ (CSV: Note)
+  url?: string;      // Google Maps リンク (CSV: URL)
+  area: string;      // エリア (CSV ファイル名)
+  genres: string[];  // ジャンルタグ（手動）
+  moods: string[];   // 気分・その他タグ（手動）
+}
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

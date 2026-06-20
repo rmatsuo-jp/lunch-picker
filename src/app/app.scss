@@ -1,0 +1,46 @@
+.app-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 8px;
+}
+
+.app-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.app-nav {
+  display: flex;
+  gap: 4px;
+
+  a.active {
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  mat-icon {
+    margin-right: 4px;
+  }
+}
+
+.app-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1rem;
+  }
+  .nav-label {
+    display: none;
+  }
+}

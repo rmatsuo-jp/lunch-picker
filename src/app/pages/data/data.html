@@ -1,0 +1,110 @@
+<mat-card class="intro" appearance="outlined">
+  <mat-card-content>
+    <h2>データの取り込み</h2>
+    <p class="muted">
+      Google Map のリストを
+      <a href="https://takeout.google.com/" target="_blank" rel="noopener">Google Takeout</a>
+      → 「保存済み(Saved)」で書き出すと、リストごとに CSV が得られます。
+      その CSV を選ぶと、<strong>ファイル名がエリア名</strong>として取り込まれます。
+    </p>
+
+    <div class="import-actions">
+      <button mat-flat-button color="primary" (click)="csvInput.click()" [disabled]="importing()">
+        <mat-icon>upload_file</mat-icon>
+        CSV を取り込む
+      </button>
+      <input #csvInput type="file" accept=".csv" multiple hidden (change)="onCsvSelected($event)" />
+
+      <button mat-stroked-button (click)="exportJson()" [disabled]="total() === 0">
+        <mat-icon>download</mat-icon>
+        JSON 書き出し
+      </button>
+
+      <button mat-stroked-button (click)="jsonInput.click()">
+        <mat-icon>restore</mat-icon>
+        JSON 読み込み
+      </button>
+      <input #jsonInput type="file" accept=".json" hidden (change)="onJsonSelected($event)" />
+
+      @if (total() > 0) {
+        <button mat-stroked-button color="warn" (click)="clearAll()">
+          <mat-icon>delete_sweep</mat-icon>
+          全削除
+        </button>
+      }
+    </div>
+    <p class="muted count">登録数: {{ total() }} 件</p>
+  </mat-card-content>
+</mat-card>
+
+@if (total() === 0) {
+  <p class="muted center">
+    まだお店がありません。上のボタンから CSV を取り込んでください。
+  </p>
+}
+
+@for (group of groups(); track group.area) {
+  <section class="area-group">
+    <h3 class="area-heading">
+      <mat-icon>place</mat-icon> {{ group.area }}
+      <span class="count-badge">{{ group.items.length }}</span>
+    </h3>
+
+    @for (r of group.items; track r.id) {
+      <mat-card class="row" appearance="outlined">
+        <mat-card-content>
+          <div class="row-head">
+            <div class="row-name">
+              {{ r.name }}
+              @if (r.url) {
+                <a class="map-link" [href]="r.url" target="_blank" rel="noopener" title="Google Map で開く">
+                  <mat-icon>map</mat-icon>
+                </a>
+              }
+            </div>
+            <button mat-icon-button (click)="remove(r)" aria-label="削除">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+          @if (r.note) { <p class="note">{{ r.note }}</p> }
+
+          <div class="tag-fields">
+            <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
+              <mat-label>ジャンル</mat-label>
+              <mat-chip-grid #genreGrid>
+                @for (g of r.genres; track g) {
+                  <mat-chip-row (removed)="removeGenre(r, g)">
+                    {{ g }}
+                    <button matChipRemove aria-label="削除"><mat-icon>cancel</mat-icon></button>
+                  </mat-chip-row>
+                }
+                <input
+                  placeholder="例: ラーメン"
+                  [matChipInputFor]="genreGrid"
+                  (matChipInputTokenEnd)="addGenre(r, $event)"
+                />
+              </mat-chip-grid>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
+              <mat-label>気分・その他</mat-label>
+              <mat-chip-grid #moodGrid>
+                @for (m of r.moods; track m) {
+                  <mat-chip-row (removed)="removeMood(r, m)">
+                    {{ m }}
+                    <button matChipRemove aria-label="削除"><mat-icon>cancel</mat-icon></button>
+                  </mat-chip-row>
+                }
+                <input
+                  placeholder="例: がっつり"
+                  [matChipInputFor]="moodGrid"
+                  (matChipInputTokenEnd)="addMood(r, $event)"
+                />
+              </mat-chip-grid>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </section>
+}

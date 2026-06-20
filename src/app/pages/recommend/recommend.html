@@ -1,0 +1,131 @@
+@if (total() === 0) {
+  <mat-card class="empty">
+    <mat-card-content>
+      <mat-icon class="empty-icon">restaurant_menu</mat-icon>
+      <p>まだお店が登録されていません。</p>
+      <p class="muted">
+        Google Map のリストを Takeout で書き出した CSV を取り込みましょう。
+      </p>
+      <a mat-flat-button color="primary" routerLink="/data">
+        <mat-icon>upload_file</mat-icon>
+        取り込み画面へ
+      </a>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <section class="filters">
+    <div class="filter-group">
+      <h3>エリア</h3>
+      @if (areas().length === 0) {
+        <span class="muted">（エリアなし）</span>
+      }
+      <mat-chip-set>
+        @for (area of areas(); track area) {
+          <mat-chip
+            class="chip"
+            [highlighted]="isSelected(selectedAreas, area)"
+            (click)="toggle(selectedAreas, area)"
+          >
+            {{ area }}
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+
+    <div class="filter-group">
+      <h3>ジャンル</h3>
+      @if (genres().length === 0) {
+        <span class="muted">（未タグ。取り込み画面でジャンルを付けられます）</span>
+      }
+      <mat-chip-set>
+        @for (g of genres(); track g) {
+          <mat-chip
+            class="chip"
+            [highlighted]="isSelected(selectedGenres, g)"
+            (click)="toggle(selectedGenres, g)"
+          >
+            {{ g }}
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+
+    <div class="filter-group">
+      <h3>気分・その他</h3>
+      @if (moods().length === 0) {
+        <span class="muted">（未タグ）</span>
+      }
+      <mat-chip-set>
+        @for (m of moods(); track m) {
+          <mat-chip
+            class="chip"
+            [highlighted]="isSelected(selectedMoods, m)"
+            (click)="toggle(selectedMoods, m)"
+          >
+            {{ m }}
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button mat-flat-button color="primary" (click)="pickRandom()" [disabled]="filtered().length === 0">
+      <mat-icon>casino</mat-icon>
+      ランダムで決めて（{{ filtered().length }}件から）
+    </button>
+    @if (hasFilter()) {
+      <button mat-stroked-button (click)="clearFilters()">
+        <mat-icon>clear</mat-icon>
+        条件クリア
+      </button>
+    }
+  </div>
+
+  @if (picked(); as p) {
+    <mat-card class="pick-card" appearance="outlined">
+      <mat-card-content>
+        <div class="pick-label">
+          <mat-icon>star</mat-icon> 今日はここ！
+        </div>
+        <h2 class="pick-name">{{ p.name }}</h2>
+        <div class="tags">
+          <span class="area-tag">{{ p.area }}</span>
+          @for (g of p.genres; track g) { <span class="tag">{{ g }}</span> }
+          @for (m of p.moods; track m) { <span class="tag mood">{{ m }}</span> }
+        </div>
+        @if (p.note) { <p class="note">{{ p.note }}</p> }
+        @if (p.url) {
+          <a mat-stroked-button [href]="p.url" target="_blank" rel="noopener">
+            <mat-icon>map</mat-icon> Google Map で開く
+          </a>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <h3 class="list-heading">該当するお店（{{ filtered().length }}件）</h3>
+  @if (filtered().length === 0) {
+    <p class="muted">条件に合うお店がありません。条件をゆるめてみてください。</p>
+  }
+  <div class="grid">
+    @for (r of filtered(); track r.id) {
+      <mat-card class="item" appearance="outlined">
+        <mat-card-content>
+          <div class="item-name">{{ r.name }}</div>
+          <div class="tags">
+            <span class="area-tag">{{ r.area }}</span>
+            @for (g of r.genres; track g) { <span class="tag">{{ g }}</span> }
+            @for (m of r.moods; track m) { <span class="tag mood">{{ m }}</span> }
+          </div>
+          @if (r.note) { <p class="note">{{ r.note }}</p> }
+          @if (r.url) {
+            <a class="map-link" [href]="r.url" target="_blank" rel="noopener">
+              <mat-icon>map</mat-icon> 地図
+            </a>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

@@ -1,0 +1,97 @@
+:host {
+  display: block;
+}
+
+.intro {
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+}
+
+.import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.9rem;
+}
+
+.count {
+  margin: 8px 0 0;
+  font-weight: 600;
+}
+
+.center {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.area-group {
+  margin-bottom: 20px;
+}
+
+.area-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  margin: 12px 0 8px;
+}
+
+.count-badge {
+  font-size: 0.75rem;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+}
+
+.row {
+  margin-bottom: 10px;
+}
+
+.row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.row-name {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--mat-sys-primary);
+}
+
+.note {
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 4px 0 8px;
+  white-space: pre-wrap;
+}
+
+.tag-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tag-field {
+  flex: 1 1 240px;
+  min-width: 220px;
+}
