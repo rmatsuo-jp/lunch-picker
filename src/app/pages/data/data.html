@@ -1,3 +1,29 @@
+<!-- ── デバイス間同期（任意・Google ログイン） ─────────────────────── -->
+<mat-card class="intro" appearance="outlined">
+  <mat-card-content>
+    <h2>デバイス間でデータを同期</h2>
+    @if (user(); as u) {
+      <p class="muted">
+        <strong>{{ u.displayName || u.email }}</strong> でログイン中。
+        データは同じアカウントの他デバイスと自動同期されます。
+      </p>
+      <button mat-stroked-button (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        ログアウト
+      </button>
+    } @else {
+      <p class="muted">
+        ログインしなくても利用できます（この端末のみに保存）。
+        Google でログインすると、複数のデバイスでデータを共有できます。
+      </p>
+      <button mat-flat-button color="primary" (click)="login()">
+        <mat-icon>login</mat-icon>
+        Google でログイン
+      </button>
+    }
+  </mat-card-content>
+</mat-card>
+
 <mat-card class="intro" appearance="outlined">
   <mat-card-content>
     <h2>データの取り込み</h2>
@@ -71,36 +97,28 @@
           <div class="tag-fields">
             <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
               <mat-label>ジャンル</mat-label>
-              <mat-chip-grid #genreGrid>
-                @for (g of r.genres; track g) {
-                  <mat-chip-row (removed)="removeGenre(r, g)">
-                    {{ g }}
-                    <button matChipRemove aria-label="削除"><mat-icon>cancel</mat-icon></button>
-                  </mat-chip-row>
+              <mat-select
+                multiple
+                [value]="r.genres"
+                (selectionChange)="setGenres(r, $event.value)"
+              >
+                @for (opt of genreOptions; track opt) {
+                  <mat-option [value]="opt">{{ opt }}</mat-option>
                 }
-                <input
-                  placeholder="例: ラーメン"
-                  [matChipInputFor]="genreGrid"
-                  (matChipInputTokenEnd)="addGenre(r, $event)"
-                />
-              </mat-chip-grid>
+              </mat-select>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
               <mat-label>気分・その他</mat-label>
-              <mat-chip-grid #moodGrid>
-                @for (m of r.moods; track m) {
-                  <mat-chip-row (removed)="removeMood(r, m)">
-                    {{ m }}
-                    <button matChipRemove aria-label="削除"><mat-icon>cancel</mat-icon></button>
-                  </mat-chip-row>
+              <mat-select
+                multiple
+                [value]="r.moods"
+                (selectionChange)="setMoods(r, $event.value)"
+              >
+                @for (opt of moodOptions; track opt) {
+                  <mat-option [value]="opt">{{ opt }}</mat-option>
                 }
-                <input
-                  placeholder="例: がっつり"
-                  [matChipInputFor]="moodGrid"
-                  (matChipInputTokenEnd)="addMood(r, $event)"
-                />
-              </mat-chip-grid>
+              </mat-select>
             </mat-form-field>
           </div>
         </mat-card-content>

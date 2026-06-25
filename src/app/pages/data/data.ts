@@ -2,12 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule, MatChipInputEvent } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Restaurant } from '../../models/restaurant';
+import { GENRE_OPTIONS, MOOD_OPTIONS } from '../../models/tags';
 import { RestaurantStore } from '../../services/restaurant-store';
 import { CsvImport } from '../../services/csv-import';
+import { AuthService } from '../../services/auth.service';
 
 /** 取り込み & タグ付け画面：CSV 取込、ジャンル/気分タグ編集、JSON 入出力。 */
 @Component({
@@ -16,8 +18,8 @@ import { CsvImport } from '../../services/csv-import';
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule,
     MatFormFieldModule,
+    MatSelectModule,
   ],
   templateUrl: './data.html',
   styleUrl: './data.scss',
@@ -26,9 +28,17 @@ export class Data {
   private store = inject(RestaurantStore);
   private csv = inject(CsvImport);
   private snackBar = inject(MatSnackBar);
+  private auth = inject(AuthService);
+
+  /** ログイン中ユーザー（null = 未ログイン）。テンプレートで同期 UI の切替に使う。 */
+  readonly user = this.auth.user;
 
   readonly restaurants = this.store.restaurants;
   readonly total = computed(() => this.restaurants().length);
+
+  /** ジャンル／気分の選択肢（選択式入力用）。 */
+  readonly genreOptions = GENRE_OPTIONS;
+  readonly moodOptions = MOOD_OPTIONS;
 
   /** エリア別にグルーピングした表示用データ。 */
   readonly groups = computed(() => {
@@ -65,20 +75,14 @@ export class Data {
     }
   }
 
-  addGenre(r: Restaurant, event: MatChipInputEvent): void {
-    this.addTag(r, 'genres', event);
+  /** ジャンル選択（複数選択ドロップダウン）の確定。 */
+  setGenres(r: Restaurant, values: string[]): void {
+    this.store.update(r.id, { genres: values });
   }
 
-  addMood(r: Restaurant, event: MatChipInputEvent): void {
-    this.addTag(r, 'moods', event);
-  }
-
-  removeGenre(r: Restaurant, value: string): void {
-    this.store.update(r.id, { genres: r.genres.filter((g) => g !== value) });
-  }
-
-  removeMood(r: Restaurant, value: string): void {
-    this.store.update(r.id, { moods: r.moods.filter((m) => m !== value) });
+  /** 気分・その他選択（複数選択ドロップダウン）の確定。 */
+  setMoods(r: Restaurant, values: string[]): void {
+    this.store.update(r.id, { moods: values });
   }
 
   remove(r: Restaurant): void {
@@ -118,11 +122,20 @@ export class Data {
     }
   }
 
-  private addTag(r: Restaurant, key: 'genres' | 'moods', event: MatChipInputEvent): void {
-    const value = event.value.trim();
-    event.chipInput?.clear();
-    if (!value || r[key].includes(value)) return;
-    this.store.update(r.id, { [key]: [...r[key], value] });
+  /** Google ログイン（複数デバイス同期を有効化）。 */
+  async login(): Promise<void> {
+    try {
+      await this.auth.loginWithGoogle();
+      this.notify('ログインしました。データはこの端末間で同期されます');
+    } catch (e) {
+      this.notify('ログインに失敗しました: ' + (e as Error).message);
+    }
+  }
+
+  /** ログアウト（以後はこの端末のみのローカル保存に戻る）。 */
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.notify('ログアウトしました');
   }
 
   private notify(message: string): void {
