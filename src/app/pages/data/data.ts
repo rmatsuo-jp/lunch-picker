@@ -9,7 +9,6 @@ import { Restaurant } from '../../models/restaurant';
 import { GENRE_OPTIONS, MOOD_OPTIONS } from '../../models/tags';
 import { RestaurantStore } from '../../services/restaurant-store';
 import { CsvImport } from '../../services/csv-import';
-import { AuthService } from '../../services/auth.service';
 
 /** 取り込み & タグ付け画面：CSV 取込、ジャンル/気分タグ編集、JSON 入出力。 */
 @Component({
@@ -28,10 +27,6 @@ export class Data {
   private store = inject(RestaurantStore);
   private csv = inject(CsvImport);
   private snackBar = inject(MatSnackBar);
-  private auth = inject(AuthService);
-
-  /** ログイン中ユーザー（null = 未ログイン）。テンプレートで同期 UI の切替に使う。 */
-  readonly user = this.auth.user;
 
   readonly restaurants = this.store.restaurants;
   readonly total = computed(() => this.restaurants().length);
@@ -120,22 +115,6 @@ export class Data {
     } finally {
       input.value = '';
     }
-  }
-
-  /** Google ログイン（複数デバイス同期を有効化）。 */
-  async login(): Promise<void> {
-    try {
-      await this.auth.loginWithGoogle();
-      this.notify('ログインしました。データはこの端末間で同期されます');
-    } catch (e) {
-      this.notify('ログインに失敗しました: ' + (e as Error).message);
-    }
-  }
-
-  /** ログアウト（以後はこの端末のみのローカル保存に戻る）。 */
-  async logout(): Promise<void> {
-    await this.auth.logout();
-    this.notify('ログアウトしました');
   }
 
   private notify(message: string): void {
