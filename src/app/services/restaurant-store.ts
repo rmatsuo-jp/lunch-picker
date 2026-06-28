@@ -1,28 +1,16 @@
 /**
- * @file 飲食店データのストア（localStorage 永続化 + 任意の Firestore 同期）。
- * - signal で状態を保持し、変更時に localStorage へ自動保存（オフラインキャッシュ／未ログイン時の単一端末動作）
- * - Google ログイン中のみ Firestore と双方向同期し、複数デバイスでデータを共有する
+ * @file 飲食店データのストア（localStorage 永続化）。
+ * - signal で状態を保持し、変更時に localStorage へ自動保存する
  * - エリア / ジャンル / 気分 の一覧を派生 signal で提供（フィルタ UI 用）
- *
- * 同期の安全設計：
- *  1) ループ防止 … 直近に同期した内容を lastSyncedJson で記憶し、同一内容は再送しない
- *  2) データ破壊防止 … ログイン直後はまずクラウドを読み（remoteReady）、
- *     存在すれば採用、未作成なら初回移行としてローカルをアップロードする
+ * クラウド同期は行わない（単一端末・オフライン完結）。
  */
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { firestore } from '../firebase.config';
+import { Injectable, computed, effect, signal } from '@angular/core';
 import { Restaurant, RestaurantData } from '../models/restaurant';
-import { AuthService } from './auth.service';
 
 const STORAGE_KEY = 'lunch-picker.data.v1';
-// Firestore 上の保存先：users/{uid}/lunch-picker/data
-const APP_COLLECTION = 'lunch-picker';
 
 @Injectable({ providedIn: 'root' })
 export class RestaurantStore {
-  private auth = inject(AuthService);
-
   /** 全店データ */
   readonly restaurants = signal<Restaurant[]>(this.load());
 
@@ -35,57 +23,9 @@ export class RestaurantStore {
   /** 付与済みの気分一覧 */
   readonly moods = computed(() => this.distinct(this.restaurants().flatMap((r) => r.moods)));
 
-  // ── 同期用の内部状態 ──────────────────────────────────────────────
-  // 直近に Firestore と一致させた内容（同一なら再送しないことでループを防ぐ）
-  private lastSyncedJson: string | null = null;
-  // クラウドの初回読み取りが完了したか（完了前にローカルを書き込んでクラウドを壊さないため）
-  private remoteReady = false;
-
   constructor() {
-    // ① 変更を localStorage へ永続化（従来通り：オフラインキャッシュ／未ログイン時の保存）
+    // 変更を localStorage へ永続化
     effect(() => this.save(this.restaurants()));
-
-    // ② Firestore 購読：ログイン状態が変わるたびに購読を張り直す
-    effect((onCleanup) => {
-      const user = this.auth.user();
-      // 購読を張り直す前に同期状態をリセット
-      this.remoteReady = false;
-      this.lastSyncedJson = null;
-      if (!user) return; // 未ログインなら同期しない（localStorage のみで動作）
-
-      const ref = doc(firestore, 'users', user.uid, APP_COLLECTION, 'data');
-      const unsub = onSnapshot(ref, (snap) => {
-        if (snap.exists()) {
-          // クラウドに正データあり → 採用（他デバイスの更新もここで反映される）
-          const data = snap.data() as RestaurantData;
-          const list = Array.isArray(data.restaurants)
-            ? data.restaurants.map((r) => this.normalize(r))
-            : [];
-          this.lastSyncedJson = JSON.stringify(list);
-          this.remoteReady = true;
-          this.restaurants.set(list);
-        } else if (!this.remoteReady) {
-          // クラウド未作成 かつ 初回読み取り → ローカルデータを初回移行アップロード
-          this.remoteReady = true;
-          const local = this.restaurants();
-          this.lastSyncedJson = JSON.stringify(local);
-          void setDoc(ref, this.toRemote(local));
-        }
-      });
-      onCleanup(() => unsub());
-    });
-
-    // ③ ローカル変更を Firestore へ反映（初回読み取り完了後のみ・同一内容はスキップ）
-    effect(() => {
-      const list = this.restaurants();
-      const user = this.auth.user();
-      if (!user || !this.remoteReady) return;
-      const json = JSON.stringify(list);
-      if (json === this.lastSyncedJson) return; // クラウド由来の更新や無変更は再送しない
-      this.lastSyncedJson = json;
-      const ref = doc(firestore, 'users', user.uid, APP_COLLECTION, 'data');
-      void setDoc(ref, this.toRemote(list));
-    });
   }
 
   /**
@@ -146,11 +86,6 @@ export class RestaurantStore {
   }
 
   // --- 内部ヘルパ ---
-
-  // Firestore へ書き込むドキュメント形（更新時刻を添えて last-write-wins の判断材料にする）
-  private toRemote(restaurants: Restaurant[]): RestaurantData & { updatedAt: number } {
-    return { version: 1, restaurants, updatedAt: Date.now() };
-  }
 
   private dedupeKey(r: Restaurant): string {
     const id = (r.url?.trim() || r.name.trim()).toLowerCase();

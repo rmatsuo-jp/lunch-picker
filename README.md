@@ -58,3 +58,14 @@ interface Restaurant {
   moods: string[];   // 気分・その他タグ（手動）
 }
 ```
+
+## ライセンス・免責
+
+本アプリは **MIT License** のもとで無償提供されます。利用にあたっては、以下の規約類をご確認ください。
+
+- [免責事項（DISCLAIMER）](docs/DISCLAIMER.md)
+- [利用規約（TERMS）](docs/TERMS.md)
+- [プライバシーポリシー（PRIVACY）](docs/PRIVACY.md)
+- [ライセンス（LICENSE）](docs/LICENSE.md)
+
+本アプリは現状有姿で提供され、利用に起因する損害について、法令上許容される範囲で開発者は責任を負いません。
