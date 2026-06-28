@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- 湯気 -->
+  <g stroke="#90caf9" stroke-width="14" stroke-linecap="round" fill="none">
+    <path d="M196 96 q-20 22 0 44 q20 22 0 44"/>
+    <path d="M256 80 q-20 22 0 44 q20 22 0 44"/>
+    <path d="M316 96 q-20 22 0 44 q20 22 0 44"/>
+  </g>
+
+  <!-- お椀（どんぶり） -->
+  <path d="M96 256 h320 a160 160 0 0 1 -320 0 Z" fill="#0061a4"/>
+  <path d="M96 256 h320 a160 160 0 0 1 -320 0 Z" fill="none" stroke="#004a7c" stroke-width="10"/>
+
+  <!-- 高台（お椀の脚） -->
+  <rect x="216" y="404" width="80" height="26" rx="10" fill="#004a7c"/>
+
+  <!-- 箸 -->
+  <g stroke="#e0a96d" stroke-width="14" stroke-linecap="round">
+    <line x1="300" y1="232" x2="440" y2="120"/>
+    <line x1="282" y1="220" x2="408" y2="96"/>
+  </g>
+</svg>

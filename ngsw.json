@@ -1,0 +1,87 @@
+{
+  "configVersion": 1,
+  "timestamp": 1782635164513,
+  "index": "/lunch-picker/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/lunch-picker/chunk-BHwQutYp.js",
+        "/lunch-picker/chunk-C7E9iFLV.js",
+        "/lunch-picker/chunk-CXHsLeRP.js",
+        "/lunch-picker/chunk-DSgKv-jh.js",
+        "/lunch-picker/favicon.ico",
+        "/lunch-picker/index.html",
+        "/lunch-picker/main-WKDI6EUD.js",
+        "/lunch-picker/manifest.webmanifest",
+        "/lunch-picker/styles-OPUTW5UJ.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/lunch-picker/favicon.svg",
+        "/lunch-picker/icons/icon-128x128.png",
+        "/lunch-picker/icons/icon-144x144.png",
+        "/lunch-picker/icons/icon-152x152.png",
+        "/lunch-picker/icons/icon-192x192.png",
+        "/lunch-picker/icons/icon-384x384.png",
+        "/lunch-picker/icons/icon-512x512.png",
+        "/lunch-picker/icons/icon-72x72.png",
+        "/lunch-picker/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/lunch-picker/chunk-BHwQutYp.js": "c94d6900823b8ee9af775b64dd7a976e15199343",
+    "/lunch-picker/chunk-C7E9iFLV.js": "74b600bd8dfc397137ef2e4f3305ddd6d9addf40",
+    "/lunch-picker/chunk-CXHsLeRP.js": "767be0ed512152739ca810bff59db4aa7094c04e",
+    "/lunch-picker/chunk-DSgKv-jh.js": "36f59b3a20a8f0be84aa827002c077523ada416c",
+    "/lunch-picker/favicon.ico": "8144a935bd1cd75bd9b0141bc50745351f9c72e2",
+    "/lunch-picker/favicon.svg": "567726aed9319224d642112b6f7328c879cdd055",
+    "/lunch-picker/icons/icon-128x128.png": "475ee0cf842e6414f47f2492a2939a0feb96cd7d",
+    "/lunch-picker/icons/icon-144x144.png": "670ea0393bb28579f09697712b74ef7157b5d725",
+    "/lunch-picker/icons/icon-152x152.png": "7ade7056bf68656158d06a49fca396469d04f74e",
+    "/lunch-picker/icons/icon-192x192.png": "58ad059c80a8b91a107ee040d7d52fbdba27bdb7",
+    "/lunch-picker/icons/icon-384x384.png": "6e7b8b54d9d37c8c172d34c31f73e07443301a98",
+    "/lunch-picker/icons/icon-512x512.png": "81cf87a66db84e312c58722ecdc9385c1447d5df",
+    "/lunch-picker/icons/icon-72x72.png": "27cd1130c69e075281382ccef3ee78bca15fbc15",
+    "/lunch-picker/icons/icon-96x96.png": "fff4af459e6c39971198f60b832afa2b49325025",
+    "/lunch-picker/index.html": "9db2a911473d6e0f600a7598c333d39bab747c5b",
+    "/lunch-picker/main-WKDI6EUD.js": "50a865a5be3c7cdafadbe2b4424b3d3a703f36d4",
+    "/lunch-picker/manifest.webmanifest": "f659310757f82eaa0c564316a4b40dc81102f797",
+    "/lunch-picker/styles-OPUTW5UJ.css": "0918ee8e18cf383756264e2ddad6eea59484ea1f"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
