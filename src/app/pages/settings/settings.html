@@ -1,0 +1,15 @@
+<!-- @file 設定ページテンプレート。バージョン情報カードを表示する。 -->
+<mat-card class="version-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>info</mat-icon>
+      バージョン情報
+    </h2>
+    <dl class="version-list">
+      <dt>バージョン</dt>
+      <dd>{{ version }}</dd>
+      <dt>リリース日</dt>
+      <dd>{{ releaseDate }}</dd>
+    </dl>
+  </mat-card-content>
+</mat-card>

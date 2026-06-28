@@ -12,5 +12,10 @@ export const routes: Routes = [
     title: '取り込み & タグ付け',
     loadComponent: () => import('./pages/data/data').then((m) => m.Data),
   },
+  {
+    path: 'settings',
+    title: '設定',
+    loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings),
+  },
   { path: '**', redirectTo: '' },
 ];
