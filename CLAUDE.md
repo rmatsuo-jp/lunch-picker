@@ -33,6 +33,15 @@ Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タ
 ## コマンド
 - `npm start` 開発サーバ / `npm run build` 本番ビルド / `npm test` テスト。
 
+## バージョン運用
+- **Conventional Commits + semantic-release** で自動採番。`package.json` の `version` は手動編集しない。
+- main への push をトリガに GitHub Actions が次バージョンを判定し、タグ・GitHub Release・`CHANGELOG.md` を生成。
+  - `fix:` / `perf:` → PATCH、`feat:` → MINOR、`feat!:` / `BREAKING CHANGE:` → MAJOR。
+    `docs:` `chore:` `refactor:` `style:` `test:` `ci:` は上昇なし。
+- `src/version.ts`（`APP_VERSION` / `RELEASE_DATE`）は **リリース時のみ** semantic-release が
+  `scripts/generate-version.mjs` を実行して更新する。`npm start` / `npm run build` では再生成されない。
+- 設定（`.releaserc.json`）は3プロジェクト共通。
+
 ## 開発サーバーのポート
 - 既定ポートは `angular.json` の `architect.serve.options.port` で **4202** に固定。
   （study-english=4200 / career-roadmap=4201 と分け、3システム同時起動を可能にするため）
