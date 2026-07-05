@@ -82,6 +82,19 @@
     }
   </div>
 
+  <div class="sort-row">
+    <span class="muted">並び順:</span>
+    <mat-button-toggle-group [value]="sortMode()" (change)="setSortMode($event.value)">
+      <mat-button-toggle value="random">通常</mat-button-toggle>
+      <mat-button-toggle value="near">近い順</mat-button-toggle>
+      <mat-button-toggle value="rating">評価順</mat-button-toggle>
+    </mat-button-toggle-group>
+    @if (locating()) { <span class="muted">現在地取得中…</span> }
+    @if (locationDenied() && sortMode() === 'near') {
+      <span class="muted">現在地を取得できませんでした（許可・対応状況をご確認ください）</span>
+    }
+  </div>
+
   @if (picked(); as p) {
     <mat-card class="pick-card" appearance="outlined">
       <mat-card-content>
@@ -95,6 +108,29 @@
           @for (m of p.moods; track m) { <span class="tag mood">{{ m }}</span> }
         </div>
         @if (p.note) { <p class="note">{{ p.note }}</p> }
+
+        @if (p.places && !p.places.fetchError) {
+          <div class="places-detail">
+            @if (p.places.rating) {
+              <span class="places-chip"><mat-icon inline>star</mat-icon> {{ p.places.rating }}（{{ p.places.userRatingsTotal }}件）</span>
+            }
+            @if (p.places.openingHoursText?.length) {
+              <span class="places-chip"><mat-icon inline>schedule</mat-icon> {{ p.places.openingHoursText![0] }}</span>
+            }
+          </div>
+          @if (mapsReady()) {
+            <google-map height="220px" width="100%" [center]="mapCenter(p)" [zoom]="16">
+              <map-marker [position]="mapCenter(p)" [title]="p.name" />
+            </google-map>
+          }
+        } @else {
+          <p class="muted">
+            地図情報が未取得です。
+            <a routerLink="/data">取り込み画面</a>
+            から取得できます。
+          </p>
+        }
+
         @if (p.url) {
           <a mat-stroked-button [href]="p.url" target="_blank" rel="noopener">
             <mat-icon>map</mat-icon> Google Map で開く
@@ -104,12 +140,12 @@
     </mat-card>
   }
 
-  <h3 class="list-heading">該当するお店（{{ filtered().length }}件）</h3>
-  @if (filtered().length === 0) {
+  <h3 class="list-heading">該当するお店（{{ sorted().length }}件）</h3>
+  @if (sorted().length === 0) {
     <p class="muted">条件に合うお店がありません。条件をゆるめてみてください。</p>
   }
   <div class="grid">
-    @for (r of filtered(); track r.id) {
+    @for (r of sorted(); track r.id) {
       <mat-card class="item" appearance="outlined">
         <mat-card-content>
           <div class="item-name">{{ r.name }}</div>
@@ -118,6 +154,9 @@
             @for (g of r.genres; track g) { <span class="tag">{{ g }}</span> }
             @for (m of r.moods; track m) { <span class="tag mood">{{ m }}</span> }
           </div>
+          @if (r.places?.rating) {
+            <span class="places-chip"><mat-icon inline>star</mat-icon> {{ r.places?.rating }}</span>
+          }
           @if (r.note) { <p class="note">{{ r.note }}</p> }
           @if (r.url) {
             <a class="map-link" [href]="r.url" target="_blank" rel="noopener">

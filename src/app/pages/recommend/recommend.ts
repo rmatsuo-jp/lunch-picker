@@ -3,19 +3,44 @@ import { RouterLink } from '@angular/router';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { GoogleMap, MapMarker } from '@angular/google-maps';
 import { Restaurant } from '../../models/restaurant';
 import { RestaurantStore } from '../../services/restaurant-store';
+import { GoogleMapsLoader } from '../../services/google-maps-loader';
+
+type SortMode = 'random' | 'near' | 'rating';
 
 /** ホーム：エリア/ジャンル/気分で絞り込み、一覧表示＋ランダム抽選でおすすめする。 */
 @Component({
   selector: 'app-recommend',
-  imports: [RouterLink, MatChipsModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [
+    RouterLink,
+    MatChipsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    GoogleMap,
+    MapMarker,
+  ],
   templateUrl: './recommend.html',
   styleUrl: './recommend.scss',
 })
 export class Recommend {
   private store = inject(RestaurantStore);
+  private mapsLoader = inject(GoogleMapsLoader);
+
+  /** Google Maps スクリプトの読み込みが完了したか（未完了時は地図を描画しない）。 */
+  readonly mapsReady = signal(false);
+
+  constructor() {
+    this.mapsLoader
+      .load()
+      .then(() => this.mapsReady.set(true))
+      .catch(() => this.mapsReady.set(false));
+  }
 
   readonly areas = this.store.areas;
   readonly genres = this.store.genres;
@@ -28,6 +53,28 @@ export class Recommend {
 
   /** ランダム抽選で選ばれた1件 */
   readonly picked = signal<Restaurant | null>(null);
+
+  /** 一覧の並び順。現在地取得に成功した場合のみ「近い順」を使える。 */
+  readonly sortMode = signal<SortMode>('random');
+  /** 現在地（取得できた場合のみ設定）。 */
+  readonly currentPos = signal<{ lat: number; lng: number } | null>(null);
+  readonly locating = signal(false);
+  readonly locationDenied = signal(false);
+
+  /** フィルタ結果を並び順に応じて並び替えたもの（一覧表示用）。 */
+  readonly sorted = computed(() => {
+    const list = this.filtered();
+    const mode = this.sortMode();
+    if (mode === 'rating') {
+      return [...list].sort((a, b) => (b.places?.rating ?? -1) - (a.places?.rating ?? -1));
+    }
+    if (mode === 'near') {
+      const pos = this.currentPos();
+      if (!pos) return list;
+      return [...list].sort((a, b) => this.distance(pos, a) - this.distance(pos, b));
+    }
+    return list;
+  });
 
   /** 選択中の条件すべてに一致する店（各軸内は OR、軸どうしは AND） */
   readonly filtered = computed(() => {
@@ -76,5 +123,54 @@ export class Recommend {
     }
     const idx = Math.floor(Math.random() * list.length);
     this.picked.set(list[idx]);
+  }
+
+  /** 「近い順」選択時にブラウザの現在地取得を要求する。拒否・失敗時はランダム表示に留める。 */
+  setSortMode(mode: SortMode): void {
+    this.sortMode.set(mode);
+    if (mode === 'near' && !this.currentPos() && !this.locating()) {
+      this.requestLocation();
+    }
+  }
+
+  private requestLocation(): void {
+    if (!navigator.geolocation) {
+      this.locationDenied.set(true);
+      return;
+    }
+    this.locating.set(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.currentPos.set({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        this.locating.set(false);
+      },
+      () => {
+        this.locationDenied.set(true);
+        this.locating.set(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000 },
+    );
+  }
+
+  /** 現在地からの直線距離（km、Haversine公式）。座標未取得の店は Infinity 扱い。 */
+  private distance(pos: { lat: number; lng: number }, r: Restaurant): number {
+    const p = r.places;
+    if (!p || (p.lat === 0 && p.lng === 0)) return Infinity;
+    const R = 6371;
+    const dLat = this.toRad(p.lat - pos.lat);
+    const dLng = this.toRad(p.lng - pos.lng);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(this.toRad(pos.lat)) * Math.cos(this.toRad(p.lat)) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  private toRad(deg: number): number {
+    return (deg * Math.PI) / 180;
+  }
+
+  /** おすすめカードの地図中心座標（マーカーと同じ位置）。 */
+  mapCenter(r: Restaurant): google.maps.LatLngLiteral {
+    return { lat: r.places?.lat ?? 0, lng: r.places?.lng ?? 0 };
   }
 }

@@ -51,6 +51,36 @@
   }
 }
 
+.sort-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 20px;
+}
+
+.places-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 4px 0 12px;
+}
+
+.places-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+google-map {
+  display: block;
+  margin: 8px 0 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
 .pick-card {
   margin-bottom: 24px;
   border-color: var(--mat-sys-primary);

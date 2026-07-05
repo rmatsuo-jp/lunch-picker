@@ -107,6 +107,7 @@ export class RestaurantStore {
       area: r.area ?? '未分類',
       genres: Array.isArray(r.genres) ? r.genres : [],
       moods: Array.isArray(r.moods) ? r.moods : [],
+      places: r.places,
     };
   }
 
