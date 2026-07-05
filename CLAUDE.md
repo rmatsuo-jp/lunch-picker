@@ -29,10 +29,14 @@ Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タ
   追加（重複排除）・更新・削除・JSON 入出力を提供する。
 - `services/csv-import.ts` — Google Takeout の保存リスト CSV（`Title, Note, URL`）を
   `papaparse` で解析し `Restaurant[]` へ変換。エリアはファイル名から決める。
+  ジャンルは取り込み時点では未設定（空配列）。手動タグ付け、または Places API 取得時の
+  自動反映（`places-genre-map.ts`）でジャンルを付与する（店名からの正規表現推定は廃止済み）。
 - `models/restaurant.ts` — `Restaurant` / `RestaurantData` 型定義。
 - `models/places.ts` — Google Places API から取得する `PlacesInfo` 型定義。
 - `services/places-enrichment.ts` — Places API v1 (`searchText`) を呼び、店舗の座標・
   評価・営業時間等を取得。店ごとに1回のみ呼び出す前提（キャッシュは `Restaurant.places`）。
+- `services/places-genre-map.ts` — Places の公式ジャンル（`types`）を日本語ジャンルタグへ
+  変換。`pages/data/` で取得成功時に手動タグと統合（和集合）して反映する。
 - `services/google-maps-loader.ts` — Google Maps JavaScript API スクリプトの動的読み込み。
 - `services/settings-store.ts` — `googleMapsApiKey`（ユーザーが設定画面で入力した値）を
   localStorage に永続化。`environment.ts` の値より優先される。

@@ -10,6 +10,7 @@ import { GENRE_OPTIONS, MOOD_OPTIONS } from '../../models/tags';
 import { RestaurantStore } from '../../services/restaurant-store';
 import { CsvImport } from '../../services/csv-import';
 import { PlacesEnrichment } from '../../services/places-enrichment';
+import { mapPlaceTypesToGenres } from '../../services/places-genre-map';
 
 /** 取り込み & タグ付け画面：CSV 取込、ジャンル/気分タグ編集、JSON 入出力。 */
 @Component({
@@ -134,9 +135,13 @@ export class Data {
     this.enriching.update((set) => new Set(set).add(r.id));
     try {
       const places = await this.places.enrich(r);
-      this.store.update(r.id, { places });
       if (places.fetchError) {
+        this.store.update(r.id, { places });
         this.notify(`${r.name}: 地図情報の取得に失敗しました（${places.fetchError}）`);
+      } else {
+        // Places の公式ジャンルを手動タグと統合（和集合・重複排除）し、既存タグは消さない
+        const merged = [...new Set([...r.genres, ...mapPlaceTypesToGenres(places.types)])];
+        this.store.update(r.id, { places, genres: merged });
       }
     } finally {
       this.enriching.update((set) => {
