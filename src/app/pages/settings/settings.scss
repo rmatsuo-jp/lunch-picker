@@ -1,4 +1,26 @@
-/* @file 設定ページのスタイル。APIキー設定・バージョン情報カードの見た目を整える。 */
+/* @file 設定ページのスタイル。表示テーマ・APIキー設定・バージョン情報カードの見た目を整える。 */
+.theme-card {
+  max-width: 480px;
+  margin: 16px auto;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+}
+
+.theme-toggle-group {
+  width: 100%;
+  display: flex;
+
+  mat-button-toggle {
+    flex: 1;
+  }
+}
+
 .api-key-card {
   max-width: 480px;
   margin: 16px auto;

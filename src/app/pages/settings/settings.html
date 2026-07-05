@@ -1,4 +1,31 @@
-<!-- @file 設定ページテンプレート。Google Maps APIキー設定・バージョン情報カードを表示する。 -->
+<!-- @file 設定ページテンプレート。表示テーマ・Google Maps APIキー設定・バージョン情報カードを表示する。 -->
+<mat-card class="theme-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>dark_mode</mat-icon>
+      表示テーマ
+    </h2>
+    <mat-button-toggle-group
+      class="theme-toggle-group"
+      [value]="theme()"
+      (change)="setTheme($event.value)"
+    >
+      <mat-button-toggle value="light">
+        <mat-icon>light_mode</mat-icon>
+        ライト
+      </mat-button-toggle>
+      <mat-button-toggle value="dark">
+        <mat-icon>dark_mode</mat-icon>
+        ダーク
+      </mat-button-toggle>
+      <mat-button-toggle value="system">
+        <mat-icon>brightness_auto</mat-icon>
+        システムに従う
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </mat-card-content>
+</mat-card>
+
 <mat-card class="api-key-card" appearance="outlined">
   <mat-card-content>
     <h2>

@@ -10,9 +10,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { APP_VERSION, RELEASE_DATE } from '../../../version';
-import { SettingsStore } from '../../services/settings-store';
+import { SettingsStore, ThemePreference } from '../../services/settings-store';
 
 @Component({
   selector: 'app-settings',
@@ -23,6 +24,7 @@ import { SettingsStore } from '../../services/settings-store';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatButtonToggleModule,
   ],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',
@@ -34,6 +36,9 @@ export class Settings {
   protected readonly version = APP_VERSION;
   protected readonly releaseDate = RELEASE_DATE;
 
+  /** 選択中の表示テーマ。 */
+  protected readonly theme = this.settings.theme;
+
   /** 入力欄の一時的な値（保存ボタンを押すまでは反映しない）。 */
   protected readonly apiKeyInput = signal(this.settings.googleMapsApiKey());
   /** キーを平文表示するかどうか。 */
@@ -42,6 +47,11 @@ export class Settings {
 
   toggleShowKey(): void {
     this.showKey.update((v) => !v);
+  }
+
+  /** 表示テーマを切り替える（選択と同時に即反映）。 */
+  setTheme(theme: ThemePreference): void {
+    this.settings.setTheme(theme);
   }
 
   save(): void {
