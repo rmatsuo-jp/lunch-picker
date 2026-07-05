@@ -36,11 +36,58 @@
   padding: 16px;
 }
 
+// 下部タブバーは既定（PC）では非表示。スマホのメディアクエリ内でのみ表示する
+.app-bottom-nav {
+  display: none;
+}
+
 @media (max-width: 480px) {
   .app-title {
     font-size: 1rem;
   }
-  .nav-label {
+  // スマホではトップ右上のナビを隠し、下部タブに役割を移す
+  .app-nav {
     display: none;
+  }
+
+  // コンテンツが下部タブに隠れないよう、タブ高さ + セーフエリア分の余白を確保
+  .app-content {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+
+  // 画面下部に固定するタブバー本体
+  .app-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: var(--mat-sys-surface);
+    border-top: 1px solid var(--mat-sys-outline-variant);
+    // iPhone/Android のホームバー領域（セーフエリア）を避ける
+    padding-bottom: env(safe-area-inset-bottom);
+
+    a {
+      flex: 1; // 3タブを等幅に
+      display: flex;
+      flex-direction: column; // アイコン上・ラベル下の縦並び
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 8px 0;
+      text-decoration: none;
+      color: var(--mat-sys-on-surface-variant);
+
+      // 現在表示中のページのタブを primary 色で強調
+      &.active {
+        color: var(--mat-sys-primary);
+      }
+    }
+
+    .tab-label {
+      font-size: 0.7rem;
+      line-height: 1;
+    }
   }
 }
