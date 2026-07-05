@@ -99,6 +99,15 @@ google-map {
   margin: 8px 0;
 }
 
+.pick-reason {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0 0 8px;
+}
+
 .list-heading {
   margin: 16px 0 8px;
   font-size: 1rem;

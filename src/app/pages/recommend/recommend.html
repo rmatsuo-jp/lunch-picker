@@ -74,6 +74,10 @@
       <mat-icon>casino</mat-icon>
       ランダムで決めて（{{ filtered().length }}件から）
     </button>
+    <button mat-flat-button color="accent" (click)="pickRecommended()" [disabled]="filtered().length === 0">
+      <mat-icon>auto_awesome</mat-icon>
+      今日のおすすめ
+    </button>
     @if (hasFilter()) {
       <button mat-stroked-button (click)="clearFilters()">
         <mat-icon>clear</mat-icon>
@@ -102,6 +106,9 @@
           <mat-icon>star</mat-icon> 今日はここ！
         </div>
         <h2 class="pick-name">{{ p.name }}</h2>
+        @if (pickedReason(); as reason) {
+          <p class="pick-reason"><mat-icon inline>auto_awesome</mat-icon> {{ reason }}</p>
+        }
         <div class="tags">
           <span class="area-tag">{{ p.area }}</span>
           @for (g of p.genres; track g) { <span class="tag">{{ g }}</span> }

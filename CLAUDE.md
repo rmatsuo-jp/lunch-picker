@@ -41,7 +41,9 @@ Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タ
 - `services/settings-store.ts` — `googleMapsApiKey`（ユーザーが設定画面で入力した値）を
   localStorage に永続化。`environment.ts` の値より優先される。
 - `pages/recommend/` — タグで絞り込んでランチをおすすめ（トップページ）。地図表示・
-  現在地からの距離順/評価順ソートあり。
+  現在地からの距離順/評価順ソートに加え、評価・レビュー件数・距離・直近の被り回避を
+  加味したスコアリングで1件を選ぶ「今日のおすすめ」がある（`RestaurantStore.recentPickedIds`
+  で直近の被りを回避）。
 - `pages/data/` — CSV 取り込み & タグ付け・データ管理・Places 情報の取得ボタン。
 - `pages/settings/` — バージョン情報表示 ＋ Google Maps API キーの入力・保存。
 - `environments/` — `googleMapsApiKey` の開発用フォールバック値。実運用は設定画面から

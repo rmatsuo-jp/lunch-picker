@@ -101,6 +101,7 @@ export class Recommend {
       list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
     );
     this.picked.set(null);
+    this.pickedReason.set(null);
   }
 
   isSelected(sig: WritableSignal<string[]>, value: string): boolean {
@@ -112,17 +113,111 @@ export class Recommend {
     this.selectedGenres.set([]);
     this.selectedMoods.set([]);
     this.picked.set(null);
+    this.pickedReason.set(null);
   }
+
+  /** 選定理由の簡易サマリー（おすすめボタンで選ばれた場合のみ表示）。 */
+  readonly pickedReason = signal<string | null>(null);
 
   /** 絞り込み結果からランダムに1件選ぶ。 */
   pickRandom(): void {
     const list = this.filtered();
+    this.pickedReason.set(null);
     if (list.length === 0) {
       this.picked.set(null);
       return;
     }
     const idx = Math.floor(Math.random() * list.length);
-    this.picked.set(list[idx]);
+    const chosen = list[idx];
+    this.picked.set(chosen);
+    this.store.recordPicked(chosen.id);
+  }
+
+  /**
+   * 評価・レビュー件数・現在地からの距離・直近の被り回避を加味して1件を選ぶ。
+   * 現在地が未取得なら「近い順」と同じ流れで取得を試みる（取得できなくてもスコア計算は続行）。
+   */
+  pickRecommended(): void {
+    const list = this.filtered();
+    if (list.length === 0) {
+      this.picked.set(null);
+      this.pickedReason.set(null);
+      return;
+    }
+    if (!this.currentPos() && !this.locating()) {
+      this.requestLocation();
+    }
+
+    const pos = this.currentPos();
+    const recent = this.store.recentPickedIds();
+    const globalMeanRating = this.meanRating(list);
+
+    let best = list[0];
+    let bestScore = -Infinity;
+    for (const r of list) {
+      const score = this.scoreOf(r, pos, recent, globalMeanRating);
+      if (score > bestScore) {
+        bestScore = score;
+        best = r;
+      }
+    }
+
+    this.picked.set(best);
+    this.pickedReason.set(this.reasonFor(best, pos));
+    this.store.recordPicked(best.id);
+  }
+
+  /** ベイズ平均による評価スコア（レビュー件数が少ない店を過大評価しない）＋距離減点＋被り減点。 */
+  private scoreOf(
+    r: Restaurant,
+    pos: { lat: number; lng: number } | null,
+    recentIds: string[],
+    globalMeanRating: number,
+  ): number {
+    const p = r.places;
+    const RATING_CONFIDENCE = 10; // ベイズ平均の重み（信頼に必要な最小レビュー件数の目安）
+
+    let score = 0;
+    if (p?.rating != null && p.userRatingsTotal != null) {
+      const v = p.userRatingsTotal;
+      const m = RATING_CONFIDENCE;
+      score += (v / (v + m)) * p.rating + (m / (v + m)) * globalMeanRating;
+    }
+
+    if (pos) {
+      const dist = this.distance(pos, r);
+      if (Number.isFinite(dist)) {
+        score -= dist * 0.1;
+      }
+    }
+
+    if (recentIds.includes(r.id)) {
+      score -= 5;
+    }
+
+    return score;
+  }
+
+  /** 絞り込み結果内の評価の平均（評価未取得の店は除く）。1件も無ければ 3.5 を仮の中庸値とする。 */
+  private meanRating(list: Restaurant[]): number {
+    const ratings = list.map((r) => r.places?.rating).filter((v): v is number => v != null);
+    if (ratings.length === 0) return 3.5;
+    return ratings.reduce((sum, v) => sum + v, 0) / ratings.length;
+  }
+
+  /** おすすめカードに表示する選定理由の1行サマリー。 */
+  private reasonFor(r: Restaurant, pos: { lat: number; lng: number } | null): string {
+    const parts: string[] = [];
+    if (r.places?.rating != null) {
+      parts.push(`評価 ${r.places.rating}（${r.places.userRatingsTotal ?? 0}件）`);
+    }
+    if (pos) {
+      const dist = this.distance(pos, r);
+      if (Number.isFinite(dist)) {
+        parts.push(dist < 1 ? `現在地から${Math.round(dist * 1000)}m` : `現在地から${dist.toFixed(1)}km`);
+      }
+    }
+    return parts.length > 0 ? parts.join('・') : 'データに基づくおすすめ';
   }
 
   /** 「近い順」選択時にブラウザの現在地取得を要求する。拒否・失敗時はランダム表示に留める。 */
