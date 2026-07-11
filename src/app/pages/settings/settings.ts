@@ -1,6 +1,7 @@
 /**
- * @file 設定ページ。アプリのバージョン名・リリース日、および
- *       Google Maps API キーの入力・保存（localStorage）を扱う。
+ * @file 設定ページ。アプリのバージョン名・リリース日、
+ *       Google Maps API キーの入力・保存（localStorage）、および
+ *       Google ログインによるクラウド同期の状態表示・ログイン/ログアウトを扱う。
  *       version.ts はビルド/開発サーバ起動時に scripts/generate-version.mjs が自動生成する。
  */
 import { Component, inject, signal } from '@angular/core';
@@ -14,6 +15,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { APP_VERSION, RELEASE_DATE } from '../../../version';
 import { SettingsStore, ThemePreference } from '../../services/settings-store';
+import { AuthService } from '../../core/firebase/auth.service';
 
 @Component({
   selector: 'app-settings',
@@ -32,9 +34,15 @@ import { SettingsStore, ThemePreference } from '../../services/settings-store';
 export class Settings {
   private settings = inject(SettingsStore);
   private snackBar = inject(MatSnackBar);
+  private auth = inject(AuthService);
 
   protected readonly version = APP_VERSION;
   protected readonly releaseDate = RELEASE_DATE;
+
+  /** ログイン中の Google ユーザー（未ログインなら null）。 */
+  protected readonly user = this.auth.user;
+  /** 非許可ユーザーのログイン試行時に表示するエラーメッセージ。 */
+  protected readonly loginError = this.auth.loginError;
 
   /** 選択中の表示テーマ。 */
   protected readonly theme = this.settings.theme;
@@ -63,6 +71,21 @@ export class Settings {
     this.settings.clearGoogleMapsApiKey();
     this.apiKeyInput.set('');
     this.notify('Google Maps API キーを削除しました');
+  }
+
+  /** Google でログイン（クラウド同期を開始）。 */
+  async login(): Promise<void> {
+    try {
+      await this.auth.login();
+    } catch (e) {
+      this.notify('ログインに失敗しました: ' + (e as Error).message);
+    }
+  }
+
+  /** ログアウト（クラウド同期を停止。ローカルデータは残る）。 */
+  async logout(): Promise<void> {
+    await this.auth.logout();
+    this.notify('ログアウトしました');
   }
 
   private notify(message: string): void {

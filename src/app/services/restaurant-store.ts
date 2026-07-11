@@ -2,7 +2,10 @@
  * @file 飲食店データのストア（localStorage 永続化）。
  * - signal で状態を保持し、変更時に localStorage へ自動保存する
  * - エリア / ジャンル / 気分 の一覧を派生 signal で提供（フィルタ UI 用）
- * クラウド同期は行わない（単一端末・オフライン完結）。
+ * クラウド同期（Google ログイン時）は RestaurantSyncService が本ストアを監視して行う。
+ * 削除は物理削除ではなく deleted フラグ（tombstone）で表現し、複数端末へ伝播できるようにする。
+ * `restaurants` は削除済みを除いた表示用の一覧、`allRestaurants` は削除済みを含む全件
+ * （同期処理が tombstone を突き合わせるために使う）。
  */
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { Restaurant, RestaurantData } from '../models/restaurant';
@@ -14,8 +17,14 @@ const RECENT_PICKS_LIMIT = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RestaurantStore {
-  /** 全店データ */
-  readonly restaurants = signal<Restaurant[]>(this.load());
+  /** 全店データ（削除済み＝ deleted:true を含む）。永続化・クラウド同期の対象。 */
+  private readonly _restaurants = signal<Restaurant[]>(this.load());
+
+  /** 削除済みを含む全件（クラウド同期の tombstone 突き合わせ用）。 */
+  readonly allRestaurants = this._restaurants.asReadonly();
+
+  /** 表示用の店データ（削除済みを除く）。 */
+  readonly restaurants = computed(() => this._restaurants().filter((r) => !r.deleted));
 
   /** 直近に選ばれた店の ID（先頭が最新、最大 RECENT_PICKS_LIMIT 件）。 */
   readonly recentPickedIds = signal<string[]>(this.loadRecentPicks());
@@ -31,7 +40,7 @@ export class RestaurantStore {
 
   constructor() {
     // 変更を localStorage へ永続化
-    effect(() => this.save(this.restaurants()));
+    effect(() => this.save(this._restaurants()));
     effect(() => this.saveRecentPicks(this.recentPickedIds()));
   }
 
@@ -56,26 +65,33 @@ export class RestaurantStore {
       added.push(r);
     }
     if (added.length > 0) {
-      this.restaurants.set([...current, ...added]);
+      this._restaurants.set([...this._restaurants(), ...added]);
     }
     return added.length;
   }
 
   /** 1件更新（タグ編集など）。 */
   update(id: string, patch: Partial<Restaurant>): void {
-    this.restaurants.update((list) =>
+    this._restaurants.update((list) =>
       list.map((r) => (r.id === id ? { ...r, ...patch } : r)),
     );
   }
 
-  /** 1件削除。 */
+  /** 1件削除。クラウド同期で他端末へ伝播できるよう、物理削除ではなく deleted フラグを立てる。 */
   remove(id: string): void {
-    this.restaurants.update((list) => list.filter((r) => r.id !== id));
+    this._restaurants.update((list) =>
+      list.map((r) => (r.id === id ? { ...r, deleted: true } : r)),
+    );
   }
 
-  /** 全削除。 */
+  /** 全削除。1件削除と同様、全件に deleted フラグを立てる（tombstone として同期される）。 */
   clear(): void {
-    this.restaurants.set([]);
+    this._restaurants.update((list) => list.map((r) => ({ ...r, deleted: true })));
+  }
+
+  /** クラウド同期のマージ結果で全件（削除済み含む）を置き換える。RestaurantSyncService 専用。 */
+  replaceAll(list: Restaurant[]): void {
+    this._restaurants.set(list);
   }
 
   /** JSON エクスポート用の文字列を返す。 */
@@ -93,7 +109,7 @@ export class RestaurantStore {
     const list = Array.isArray(parsed) ? parsed : parsed.restaurants;
     if (!Array.isArray(list)) throw new Error('不正な JSON 形式です');
     const normalized = list.map((r) => this.normalize(r));
-    this.restaurants.set(normalized);
+    this._restaurants.set(normalized);
     return normalized.length;
   }
 
@@ -120,6 +136,7 @@ export class RestaurantStore {
       genres: Array.isArray(r.genres) ? r.genres : [],
       moods: Array.isArray(r.moods) ? r.moods : [],
       places: r.places,
+      deleted: r.deleted,
     };
   }
 

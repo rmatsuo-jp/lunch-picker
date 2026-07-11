@@ -18,6 +18,8 @@ export interface Restaurant {
   moods: string[];
   /** Google Places API から取得した客観情報（未取得の場合は undefined） */
   places?: PlacesInfo;
+  /** クラウド同期用の論理削除フラグ。true の場合は削除済みとして一覧・出力から除外する。 */
+  deleted?: boolean;
 }
 
 /** localStorage 永続化や JSON 入出力で使う器。 */

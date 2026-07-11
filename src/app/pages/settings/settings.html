@@ -1,4 +1,4 @@
-<!-- @file 設定ページテンプレート。表示テーマ・Google Maps APIキー設定・バージョン情報カードを表示する。 -->
+<!-- @file 設定ページテンプレート。表示テーマ・Google Maps APIキー設定・クラウド同期・バージョン情報カードを表示する。 -->
 <mat-card class="theme-card" appearance="outlined">
   <mat-card-content>
     <h2>
@@ -80,6 +80,38 @@
         現在キーは未登録です（地図情報の取得・地図表示は利用できません）。
       }
     </p>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="sync-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>cloud_sync</mat-icon>
+      クラウド同期
+    </h2>
+    <p class="muted">
+      Google でログインすると、お店データ（登録・タグ編集・削除）を複数端末間で同期できます。
+      未ログインでもローカル保存のまま全機能を利用できます。
+    </p>
+
+    @if (user(); as u) {
+      <p>
+        <mat-icon inline>account_circle</mat-icon>
+        {{ u.email }} としてログイン中
+      </p>
+      <button mat-stroked-button color="warn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        ログアウト
+      </button>
+    } @else {
+      <button mat-flat-button color="primary" (click)="login()">
+        <mat-icon>login</mat-icon>
+        Google でログイン
+      </button>
+      @if (loginError()) {
+        <p class="muted status login-error">{{ loginError() }}</p>
+      }
+    }
   </mat-card-content>
 </mat-card>
 
