@@ -8,11 +8,17 @@ import { Injectable, computed, effect, signal } from '@angular/core';
 import { Restaurant, RestaurantData } from '../models/restaurant';
 
 const STORAGE_KEY = 'lunch-picker.data.v1';
+const RECENT_PICKS_KEY = 'lunch-picker.recent-picks.v1';
+/** 直近履歴として保持する最大件数（「おすすめ」の被り回避判定に使う）。 */
+const RECENT_PICKS_LIMIT = 5;
 
 @Injectable({ providedIn: 'root' })
 export class RestaurantStore {
   /** 全店データ */
   readonly restaurants = signal<Restaurant[]>(this.load());
+
+  /** 直近に選ばれた店の ID（先頭が最新、最大 RECENT_PICKS_LIMIT 件）。 */
+  readonly recentPickedIds = signal<string[]>(this.loadRecentPicks());
 
   /** 登録済みのエリア一覧（重複なし・昇順） */
   readonly areas = computed(() => this.distinct(this.restaurants().map((r) => r.area)));
@@ -26,6 +32,12 @@ export class RestaurantStore {
   constructor() {
     // 変更を localStorage へ永続化
     effect(() => this.save(this.restaurants()));
+    effect(() => this.saveRecentPicks(this.recentPickedIds()));
+  }
+
+  /** 「今日のおすすめ」「ランダム」で選ばれた店を直近履歴の先頭に記録する。 */
+  recordPicked(id: string): void {
+    this.recentPickedIds.update((ids) => [id, ...ids.filter((x) => x !== id)].slice(0, RECENT_PICKS_LIMIT));
   }
 
   /**
@@ -107,6 +119,7 @@ export class RestaurantStore {
       area: r.area ?? '未分類',
       genres: Array.isArray(r.genres) ? r.genres : [],
       moods: Array.isArray(r.moods) ? r.moods : [],
+      places: r.places,
     };
   }
 
@@ -127,6 +140,25 @@ export class RestaurantStore {
     try {
       const data: RestaurantData = { version: 1, restaurants };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // ストレージ不可時は無視（プライベートブラウズ等）
+    }
+  }
+
+  private loadRecentPicks(): string[] {
+    try {
+      const raw = localStorage.getItem(RECENT_PICKS_KEY);
+      if (!raw) return [];
+      const ids = JSON.parse(raw) as unknown;
+      return Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private saveRecentPicks(ids: string[]): void {
+    try {
+      localStorage.setItem(RECENT_PICKS_KEY, JSON.stringify(ids));
     } catch {
       // ストレージ不可時は無視（プライベートブラウズ等）
     }

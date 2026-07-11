@@ -1,3 +1,5 @@
+import { PlacesInfo } from './places';
+
 /** 1件の飲食店データ。Google Map の保存リスト(CSV) ＋ 手動タグで構成。 */
 export interface Restaurant {
   /** 自動採番 ID */
@@ -14,6 +16,8 @@ export interface Restaurant {
   genres: string[];
   /** 気分・その他タグ（手動付与：がっつり・あっさり・一人OK 等） */
   moods: string[];
+  /** Google Places API から取得した客観情報（未取得の場合は undefined） */
+  places?: PlacesInfo;
 }
 
 /** localStorage 永続化や JSON 入出力で使う器。 */

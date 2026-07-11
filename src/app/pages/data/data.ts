@@ -9,6 +9,8 @@ import { Restaurant } from '../../models/restaurant';
 import { GENRE_OPTIONS, MOOD_OPTIONS } from '../../models/tags';
 import { RestaurantStore } from '../../services/restaurant-store';
 import { CsvImport } from '../../services/csv-import';
+import { PlacesEnrichment } from '../../services/places-enrichment';
+import { mapPlaceTypesToGenres } from '../../services/places-genre-map';
 
 /** 取り込み & タグ付け画面：CSV 取込、ジャンル/気分タグ編集、JSON 入出力。 */
 @Component({
@@ -26,10 +28,21 @@ import { CsvImport } from '../../services/csv-import';
 export class Data {
   private store = inject(RestaurantStore);
   private csv = inject(CsvImport);
+  private places = inject(PlacesEnrichment);
   private snackBar = inject(MatSnackBar);
 
   readonly restaurants = this.store.restaurants;
   readonly total = computed(() => this.restaurants().length);
+
+  /** 地図情報が未取得（または前回取得が失敗）の店舗一覧。 */
+  readonly pending = computed(() =>
+    this.restaurants().filter((r) => !r.places || r.places.fetchError),
+  );
+
+  /** 地図情報を取得中の店舗 ID 集合（ボタンの多重クリック防止・スピナー表示用）。 */
+  readonly enriching = signal<Set<string>>(new Set());
+  /** 一括取得の進行中フラグ。 */
+  readonly bulkEnriching = signal(false);
 
   /** ジャンル／気分の選択肢（選択式入力用）。 */
   readonly genreOptions = GENRE_OPTIONS;
@@ -114,6 +127,49 @@ export class Data {
       this.notify('JSON の読み込みに失敗しました: ' + (e as Error).message);
     } finally {
       input.value = '';
+    }
+  }
+
+  /** 1件だけ Google Places 情報を取得する（成功・失敗に関わらず store に保存）。 */
+  async enrichOne(r: Restaurant): Promise<void> {
+    this.enriching.update((set) => new Set(set).add(r.id));
+    try {
+      const places = await this.places.enrich(r);
+      if (places.fetchError) {
+        this.store.update(r.id, { places });
+        this.notify(`${r.name}: 地図情報の取得に失敗しました（${places.fetchError}）`);
+      } else {
+        // Places の公式ジャンルを手動タグと統合（和集合・重複排除）し、既存タグは消さない
+        const merged = [...new Set([...r.genres, ...mapPlaceTypesToGenres(places.types)])];
+        this.store.update(r.id, { places, genres: merged });
+      }
+    } finally {
+      this.enriching.update((set) => {
+        const next = new Set(set);
+        next.delete(r.id);
+        return next;
+      });
+    }
+  }
+
+  /** 未取得（失敗含む）の店舗をまとめて取得する。レート制限対策で直列＋間隔をあけて実行。 */
+  async enrichAllPending(): Promise<void> {
+    const targets = this.pending();
+    if (targets.length === 0) return;
+    this.bulkEnriching.set(true);
+    let success = 0;
+    let failed = 0;
+    try {
+      for (const r of targets) {
+        await this.enrichOne(r);
+        const updated = this.restaurants().find((x) => x.id === r.id);
+        if (updated?.places?.fetchError) failed++;
+        else success++;
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+      this.notify(`地図情報を取得しました（成功 ${success}件・失敗 ${failed}件）`);
+    } finally {
+      this.bulkEnriching.set(false);
     }
   }
 

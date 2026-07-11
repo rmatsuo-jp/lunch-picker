@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import Papa from 'papaparse';
 import { Restaurant } from '../models/restaurant';
-import { guessGenres } from './genre-guess';
 
 /**
  * Google Takeout（保存済みリスト）の CSV を Restaurant[] へ変換する。
  *
  * Takeout の CSV は基本 `Title, Note, URL` の3列。
  * エリアはファイル名（拡張子を除いたもの＝Google Map のリスト名）から決める。
+ * ジャンルは取り込み時点では未設定（空配列）とし、手動タグ付け、または
+ * データ管理画面での Places API 取得（`places-genre-map.ts`）で後から付与する。
  */
 @Injectable({ providedIn: 'root' })
 export class CsvImport {
@@ -46,7 +47,7 @@ export class CsvImport {
         note: this.pick(row, ['note', 'comment', 'メモ', 'コメント']) || undefined,
         url: this.pick(row, ['url', 'link', 'リンク']) || undefined,
         area,
-        genres: guessGenres(name), // 店名からジャンルをローカル推定（初期値・手動編集可）
+        genres: [],
         moods: [],
       });
     }

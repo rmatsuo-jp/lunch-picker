@@ -4,7 +4,10 @@
 
 ## 概要
 Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タグで絞り込んで
-「今日のランチ」をおすすめするアプリ。AI は使わず、ローカルのデータとタグだけで完結する。
+「今日のランチ」をおすすめするアプリ。データは基本ローカル完結だが、
+店舗情報の正確化のため Google Places API（外部通信）を利用する。
+外部API・生成AIの利用は、APIキー保護やコスト管理などの安全性を担保できる場合に限り許可する。
+バックグラウンドでの自動通信は行わず、ユーザー操作（ボタン押下）をきっかけにのみ通信する。
 
 ## エージェント向け基本ルール
 - **会話言語**: Claude Code はすべての返答・説明・質問を**日本語**で行うこと。
@@ -26,9 +29,26 @@ Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タ
   追加（重複排除）・更新・削除・JSON 入出力を提供する。
 - `services/csv-import.ts` — Google Takeout の保存リスト CSV（`Title, Note, URL`）を
   `papaparse` で解析し `Restaurant[]` へ変換。エリアはファイル名から決める。
+  ジャンルは取り込み時点では未設定（空配列）。手動タグ付け、または Places API 取得時の
+  自動反映（`places-genre-map.ts`）でジャンルを付与する（店名からの正規表現推定は廃止済み）。
 - `models/restaurant.ts` — `Restaurant` / `RestaurantData` 型定義。
-- `pages/recommend/` — タグで絞り込んでランチをおすすめ（トップページ）。
-- `pages/data/` — CSV 取り込み & タグ付け・データ管理。
+- `models/places.ts` — Google Places API から取得する `PlacesInfo` 型定義。
+- `services/places-enrichment.ts` — Places API v1 (`searchText`) を呼び、店舗の座標・
+  評価・営業時間等を取得。店ごとに1回のみ呼び出す前提（キャッシュは `Restaurant.places`）。
+- `services/places-genre-map.ts` — Places の公式ジャンル（`types`）を日本語ジャンルタグへ
+  変換。`pages/data/` で取得成功時に手動タグと統合（和集合）して反映する。
+- `services/google-maps-loader.ts` — Google Maps JavaScript API スクリプトの動的読み込み。
+- `services/settings-store.ts` — `googleMapsApiKey`（ユーザーが設定画面で入力した値）を
+  localStorage に永続化。`environment.ts` の値より優先される。
+- `pages/recommend/` — タグで絞り込んでランチをおすすめ（トップページ）。地図表示・
+  現在地からの距離順/評価順ソートに加え、評価・レビュー件数・距離・直近の被り回避を
+  加味したスコアリングで1件を選ぶ「今日のおすすめ」がある（`RestaurantStore.recentPickedIds`
+  で直近の被りを回避）。
+- `pages/data/` — CSV 取り込み & タグ付け・データ管理・Places 情報の取得ボタン。
+- `pages/settings/` — バージョン情報表示 ＋ Google Maps API キーの入力・保存。
+- `environments/` — `googleMapsApiKey` の開発用フォールバック値。実運用は設定画面から
+  ユーザーが登録するキー（`SettingsStore`）を優先。HTTP リファラー制限・Places API限定の
+  API制限をかけたキーをクライアントに公開する前提。
 
 ## コマンド
 - `npm start` 開発サーバ / `npm run build` 本番ビルド / `npm test` テスト。

@@ -84,6 +84,27 @@
   white-space: pre-wrap;
 }
 
+.places-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.places-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.places-error {
+  font-size: 0.8rem;
+  color: var(--mat-sys-error);
+}
+
 .tag-fields {
   display: flex;
   flex-wrap: wrap;

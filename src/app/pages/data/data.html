@@ -32,6 +32,12 @@
           全削除
         </button>
       }
+      @if (pending().length > 0) {
+        <button mat-stroked-button (click)="enrichAllPending()" [disabled]="bulkEnriching()">
+          <mat-icon>travel_explore</mat-icon>
+          未取得の地図情報を一括取得（{{ pending().length }}件）
+        </button>
+      }
     </div>
     <p class="muted count">登録数: {{ total() }} 件</p>
   </mat-card-content>
@@ -67,6 +73,27 @@
             </button>
           </div>
           @if (r.note) { <p class="note">{{ r.note }}</p> }
+
+          <div class="places-info">
+            @if (r.places && !r.places.fetchError) {
+              <span class="places-chip">
+                <mat-icon inline>place</mat-icon>
+                @if (r.places.rating) { {{ r.places.rating }}★ ({{ r.places.userRatingsTotal }}件) }
+                @else { 座標取得済み }
+              </span>
+              <button mat-button (click)="enrichOne(r)" [disabled]="enriching().has(r.id)">
+                <mat-icon>refresh</mat-icon> 再取得
+              </button>
+            } @else {
+              @if (r.places?.fetchError) {
+                <span class="places-error">取得失敗: {{ r.places?.fetchError }}</span>
+              }
+              <button mat-button (click)="enrichOne(r)" [disabled]="enriching().has(r.id)">
+                <mat-icon>travel_explore</mat-icon>
+                {{ enriching().has(r.id) ? '取得中…' : '地図情報を取得' }}
+              </button>
+            }
+          </div>
 
           <div class="tag-fields">
             <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
