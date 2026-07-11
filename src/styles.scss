@@ -10,13 +10,46 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
+        primary: mat.$violet-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+}
+
+// ダークモード時の配色を study-english の配色（インディゴ〜バイオレット系の
+// ネイビー基調）に合わせて上書きする。Angular Material の各コンポーネントは
+// 内部でもこれらの --mat-sys-* トークンを参照しているため、ここで値を
+// 上書きするだけでカード・ボタン・トグル等の配色も連動して変わる。
+// 適用対象（html[data-color-scheme="dark"]）は app.ts の effect で
+// SettingsStore のテーマ設定（'system' の場合は OS 設定）に応じて切り替わる。
+html[data-color-scheme='dark'] {
+  --mat-sys-surface: #111827;
+  --mat-sys-surface-dim: #0f172a;
+  --mat-sys-surface-bright: #1f2937;
+  --mat-sys-surface-container-lowest: #0b1220;
+  --mat-sys-surface-container-low: #171f2e;
+  --mat-sys-surface-container: #1f2937;
+  --mat-sys-surface-container-high: #26313f;
+  --mat-sys-surface-container-highest: #2d3948;
+  --mat-sys-on-surface: #f9fafb;
+  --mat-sys-on-surface-variant: #9ca3af;
+  --mat-sys-outline: #4b5563;
+  --mat-sys-outline-variant: #374151;
+  --mat-sys-primary: #818cf8;
+  --mat-sys-on-primary: #1e1b4b;
+  --mat-sys-primary-container: #1e1b4b;
+  --mat-sys-on-primary-container: #c7d2fe;
+  --mat-sys-secondary-container: #26313f;
+  --mat-sys-on-secondary-container: #d1d5db;
+  --mat-sys-tertiary-container: #1e1b4b;
+  --mat-sys-on-tertiary-container: #c7d2fe;
+  --mat-sys-error: #f87171;
+  --mat-sys-on-error: #450a0a;
+  --mat-sys-inverse-surface: #f9fafb;
+  --mat-sys-inverse-on-surface: #111827;
 }
 
 body {
