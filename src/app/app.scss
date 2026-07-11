@@ -1,93 +1,170 @@
-.app-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  gap: 8px;
-}
-
-.app-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.app-nav {
+.app-shell {
   display: flex;
-  gap: 4px;
-
-  a.active {
-    font-weight: 700;
-    background: rgba(255, 255, 255, 0.16);
-  }
-
-  mat-icon {
-    margin-right: 4px;
-  }
+  flex-direction: column;
+  height: 100vh; // dvh非対応環境向けフォールバック
+  height: 100dvh;
+  background: var(--mat-sys-surface);
+  // app-nav自身の高さ決定には使わない（自己参照によるResizeObserver増殖ループを避けるため）。
+  // .app-contentがapp-nav分の余白を確保するためだけに参照する。
+  // この値はJS実行前の初期値・フォールバックに過ぎず、app.tsのResizeObserverが
+  // #bottomNavの実高さ（ラベル折り返し等で変動しうる）で同じ要素に上書きする。
+  --bottom-nav-height: 4.5rem;
 }
 
 .app-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   max-width: 900px;
   margin: 0 auto;
   padding: 16px;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
 }
 
-// 下部タブバーは既定（PC）では非表示。スマホのメディアクエリ内でのみ表示する
-.app-bottom-nav {
+.app-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 10;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 0;
+  text-decoration: none;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.7rem;
+  font-weight: 500;
+  transition: color 0.2s;
+
+  &.active {
+    color: var(--mat-sys-primary);
+  }
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+}
+
+// ── サイドバーヘッダー（タイトル+格納ボタン。モバイルの下部タブバーでは不要なので既定は非表示） ──
+.sidebar-header {
   display: none;
 }
 
-@media (max-width: 480px) {
-  .app-title {
-    font-size: 1rem;
+// ── PC レイアウト（768px 以上）────────────────────────────────────
+@media (min-width: 768px) {
+  .app-shell {
+    flex-direction: row;
+    // サイドバー化するため下部タブ用の余白確保は不要
+    --bottom-nav-height: 0rem;
   }
-  // スマホではトップ右上のナビを隠し、下部タブに役割を移す
+
   .app-nav {
-    display: none;
-  }
-
-  // コンテンツが下部タブに隠れないよう、タブ高さ + セーフエリア分の余白を確保
-  .app-content {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom));
-  }
-
-  // 画面下部に固定するタブバー本体
-  .app-bottom-nav {
-    display: flex;
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
-    right: 0;
-    z-index: 10;
-    background: var(--mat-sys-surface);
-    border-top: 1px solid var(--mat-sys-outline-variant);
-    // iPhone/Android のホームバー領域（セーフエリア）を避ける
-    padding-bottom: env(safe-area-inset-bottom);
+    bottom: 0;
+    right: auto;
+    width: 220px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: stretch;
+    border-top: none;
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    padding-bottom: 0;
+    transition: width 0.2s ease;
 
-    a {
-      flex: 1; // 3タブを等幅に
-      display: flex;
-      flex-direction: column; // アイコン上・ラベル下の縦並び
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      padding: 8px 0;
-      text-decoration: none;
-      color: var(--mat-sys-on-surface-variant);
+    &.collapsed {
+      width: 64px;
 
-      // 現在表示中のページのタブを primary 色で強調
-      &.active {
-        color: var(--mat-sys-primary);
+      .nav-item {
+        justify-content: center;
+        padding: 14px 0;
+
+        span {
+          display: none;
+        }
       }
     }
+  }
 
-    .tab-label {
-      font-size: 0.7rem;
-      line-height: 1;
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 auto;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+    .collapsed & {
+      justify-content: center;
+      padding: 12px 0;
     }
+  }
+
+  .sidebar-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+
+    .collapsed & span {
+      display: none;
+    }
+  }
+
+  .sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    padding: 6px;
+    border: none;
+    background: none;
+    color: var(--mat-sys-on-surface-variant);
+    cursor: pointer;
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 14px 20px;
+    font-size: 0.9375rem;
+    gap: 12px;
+  }
+
+  .app-content {
+    max-width: none;
+    padding-bottom: 16px;
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    transition: margin-left 0.2s ease, width 0.2s ease;
+
+    > * {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  }
+
+  .app-shell.sidebar-collapsed .app-content {
+    margin-left: 64px;
+    width: calc(100% - 64px);
   }
 }

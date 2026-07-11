@@ -1,0 +1,82 @@
+<!-- @file 開発者用ページテンプレート。店舗データ概要・生JSON・設定/環境情報・ログイン/同期状態の4カード構成。 -->
+<mat-card class="dev-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>storefront</mat-icon>
+      店舗データ概要
+    </h2>
+    <dl class="info-list">
+      <dt>総件数</dt>
+      <dd>{{ total() }}</dd>
+      <dt>有効</dt>
+      <dd>{{ active() }}</dd>
+      <dt>削除済み</dt>
+      <dd>{{ deleted() }}</dd>
+      <dt>エリア数</dt>
+      <dd>{{ areaCount() }}</dd>
+      <dt>ジャンル数</dt>
+      <dd>{{ genreCount() }}</dd>
+      <dt>気分タグ数</dt>
+      <dd>{{ moodCount() }}</dd>
+    </dl>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="dev-card" appearance="outlined">
+  <mat-card-content>
+    <div class="section-header">
+      <h2>
+        <mat-icon>data_object</mat-icon>
+        店舗データ生JSON
+      </h2>
+      <button mat-stroked-button type="button" (click)="copy('restaurants', restaurantsJson())">
+        {{ copiedKey() === 'restaurants' ? 'コピーしました' : 'コピー' }}
+      </button>
+    </div>
+    <textarea class="textarea" rows="10" readonly [value]="restaurantsJson()"></textarea>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="dev-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>tune</mat-icon>
+      設定・環境情報
+    </h2>
+    <dl class="info-list">
+      <dt>表示テーマ</dt>
+      <dd>{{ theme() }}</dd>
+      <dt>Google Maps API キー</dt>
+      <dd>{{ hasApiKey() ? apiKeyPreview() : '(未設定)' }}</dd>
+      <dt>production</dt>
+      <dd>{{ production }}</dd>
+      <dt>Firebase projectId</dt>
+      <dd>{{ firebaseProjectId }}</dd>
+    </dl>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="dev-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>cloud_sync</mat-icon>
+      ログイン・同期状態
+    </h2>
+    @if (user(); as u) {
+      <p><mat-icon inline>account_circle</mat-icon> {{ u.email }}（UID: {{ u.uid }}）としてログイン中</p>
+    } @else {
+      <p class="muted">未ログイン</p>
+    }
+    @if (loginError()) {
+      <p class="muted login-error">{{ loginError() }}</p>
+    }
+
+    <div class="section-header">
+      <span class="label">直近おすすめ履歴（recent-picks 生データ）</span>
+      <button mat-stroked-button type="button" (click)="copy('recent-picks', recentPicksJson())">
+        {{ copiedKey() === 'recent-picks' ? 'コピーしました' : 'コピー' }}
+      </button>
+    </div>
+    <textarea class="textarea" rows="6" readonly [value]="recentPicksJson()"></textarea>
+  </mat-card-content>
+</mat-card>

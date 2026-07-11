@@ -1,0 +1,69 @@
+/* @file 開発ページのスタイル。settings.html のカードデザインに合わせる。 */
+.dev-card {
+  max-width: 640px;
+  margin: 16px auto;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+  }
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.info-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 0;
+
+  dt {
+    color: var(--mat-sys-on-surface-variant, #5c5f63);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+    word-break: break-all;
+  }
+}
+
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 8px;
+  border: 1px solid var(--mat-sys-outline-variant, #c4c7c5);
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-low, #f5f5f5);
+  color: var(--mat-sys-on-surface, inherit);
+  resize: vertical;
+}
+
+.muted {
+  color: var(--mat-sys-on-surface-variant, #5c5f63);
+  font-size: 0.85rem;
+}
+
+.login-error {
+  color: var(--mat-sys-error, #b3261e);
+}

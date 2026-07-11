@@ -1,41 +1,45 @@
-<mat-toolbar color="primary" class="app-toolbar">
-  <span class="app-title">
-    <mat-icon>restaurant</mat-icon>
-    今日のランチおすすめ
-  </span>
-  <span class="spacer"></span>
-  <nav class="app-nav">
-    <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+<!-- @file アプリシェル。router-outlet（メインコンテンツ）と単一の nav（#bottomNav）を配置する。
+     nav はモバイル幅では画面下部の固定タブバー、PC幅（768px以上）ではサイドバーに変形し、
+     PCレイアウトでは先頭にアプリタイトル（sidebar-title）+ 格納/展開トグル（sidebar-toggle）を表示する
+     （app.ts の sidebarCollapsed signal に連動）。isDev のときのみ開発タブ（/dev）を表示する。 -->
+<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <main class="app-content">
+    <router-outlet />
+  </main>
+
+  <nav class="app-nav" [class.collapsed]="sidebarCollapsed()" #bottomNav>
+    <div class="sidebar-header">
+      <a routerLink="/" class="sidebar-title">
+        <mat-icon>restaurant</mat-icon>
+        <span>今日のランチおすすめ</span>
+      </a>
+      <button
+        type="button"
+        class="sidebar-toggle"
+        (click)="toggleSidebar()"
+        [attr.aria-label]="sidebarCollapsed() ? 'サイドバーを展開' : 'サイドバーを格納'"
+      >
+        <mat-icon>{{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
+
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-item">
       <mat-icon>casino</mat-icon>
-      <span class="nav-label">おすすめ</span>
+      <span>おすすめ</span>
     </a>
-    <a mat-button routerLink="/data" routerLinkActive="active">
+    <a routerLink="/data" routerLinkActive="active" class="nav-item">
       <mat-icon>upload_file</mat-icon>
-      <span class="nav-label">取り込み</span>
+      <span>取り込み</span>
     </a>
-    <a mat-button routerLink="/settings" routerLinkActive="active">
+    <a routerLink="/settings" routerLinkActive="active" class="nav-item">
       <mat-icon>settings</mat-icon>
-      <span class="nav-label">設定</span>
+      <span>設定</span>
     </a>
+    @if (isDev) {
+      <a routerLink="/dev" routerLinkActive="active" class="nav-item">
+        <mat-icon>bug_report</mat-icon>
+        <span>開発</span>
+      </a>
+    }
   </nav>
-</mat-toolbar>
-
-<main class="app-content">
-  <router-outlet />
-</main>
-
-<!-- スマホ専用の下部固定タブバー（PC では CSS で非表示）。リンク先はトップナビと同一 -->
-<nav class="app-bottom-nav">
-  <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-    <mat-icon>casino</mat-icon>
-    <span class="tab-label">おすすめ</span>
-  </a>
-  <a routerLink="/data" routerLinkActive="active">
-    <mat-icon>upload_file</mat-icon>
-    <span class="tab-label">取り込み</span>
-  </a>
-  <a routerLink="/settings" routerLinkActive="active">
-    <mat-icon>settings</mat-icon>
-    <span class="tab-label">設定</span>
-  </a>
-</nav>
+</div>
