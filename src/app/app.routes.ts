@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
+import { environment } from '../environments/environment';
 
 export const routes: Routes = [
   {
     path: '',
-    title: '今日のランチおすすめ',
+    title: 'ランチくじ',
     loadComponent: () =>
       import('./pages/recommend/recommend').then((m) => m.Recommend),
   },
@@ -17,5 +18,15 @@ export const routes: Routes = [
     title: '設定',
     loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings),
   },
+  // 開発用タブは本番ビルドでは存在させない（isDev による app.html のナビ表示制御と対応）
+  ...(!environment.production
+    ? [
+        {
+          path: 'dev',
+          title: '開発',
+          loadComponent: () => import('./pages/dev/dev').then((m) => m.Dev),
+        },
+      ]
+    : []),
   { path: '**', redirectTo: '' },
 ];

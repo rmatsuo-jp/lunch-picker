@@ -69,6 +69,19 @@
     </div>
   </section>
 
+  <div class="filter-group">
+    <mat-chip-set>
+      <mat-chip
+        class="chip"
+        [highlighted]="requireLunchTime()"
+        (click)="toggleRequireLunchTime()"
+      >
+        <mat-icon inline>schedule</mat-icon>
+        昼休みに余裕がある店のみ
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+
   <div class="actions">
     <button mat-flat-button color="primary" (click)="pickRandom()" [disabled]="filtered().length === 0">
       <mat-icon>casino</mat-icon>

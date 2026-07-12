@@ -10,10 +10,15 @@ const STORAGE_KEY = 'lunch-picker.settings.v1';
 /** ライト / ダーク / システム設定への追従。 */
 export type ThemePreference = 'light' | 'dark' | 'system';
 
+/** 「昼休みに余裕がある店のみ」判定に使う必要時間（分）のデフォルト値。 */
+const DEFAULT_LUNCH_BREAK_MINUTES = 60;
+
 interface SettingsData {
-  version: 2;
+  version: 3;
   googleMapsApiKey: string;
   theme: ThemePreference;
+  /** 昼休みに最低限必要な分数（残り営業時間がこれ未満の店をフィルタで除外する）。 */
+  lunchBreakMinutes: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -25,6 +30,9 @@ export class SettingsStore {
 
   /** 表示テーマの選択（未設定時は 'system'）。 */
   readonly theme = computed(() => this.data().theme);
+
+  /** 昼休みに最低限必要な分数（未設定時は60分）。 */
+  readonly lunchBreakMinutes = computed(() => this.data().lunchBreakMinutes);
 
   constructor() {
     effect(() => this.save(this.data()));
@@ -45,16 +53,27 @@ export class SettingsStore {
     this.data.update((current) => ({ ...current, theme }));
   }
 
+  /** 昼休みに最低限必要な分数を保存する。 */
+  setLunchBreakMinutes(minutes: number): void {
+    this.data.update((current) => ({ ...current, lunchBreakMinutes: minutes }));
+  }
+
   private load(): SettingsData {
-    const fallback: SettingsData = { version: 2, googleMapsApiKey: '', theme: 'system' };
+    const fallback: SettingsData = {
+      version: 3,
+      googleMapsApiKey: '',
+      theme: 'system',
+      lunchBreakMinutes: DEFAULT_LUNCH_BREAK_MINUTES,
+    };
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return fallback;
       const parsed = JSON.parse(raw) as Partial<SettingsData>;
       return {
-        version: 2,
+        version: 3,
         googleMapsApiKey: parsed.googleMapsApiKey ?? '',
         theme: parsed.theme ?? 'system',
+        lunchBreakMinutes: parsed.lunchBreakMinutes ?? DEFAULT_LUNCH_BREAK_MINUTES,
       };
     } catch {
       return fallback;

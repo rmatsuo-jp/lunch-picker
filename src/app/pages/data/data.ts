@@ -34,9 +34,14 @@ export class Data {
   readonly restaurants = this.store.restaurants;
   readonly total = computed(() => this.restaurants().length);
 
-  /** 地図情報が未取得（または前回取得が失敗）の店舗一覧。 */
+  /**
+   * 地図情報が未取得（または前回取得が失敗、営業時間の構造化データ未取得）の店舗一覧。
+   * openingPeriods は後から追加したフィールドのため、既存キャッシュには無く再取得が必要。
+   */
   readonly pending = computed(() =>
-    this.restaurants().filter((r) => !r.places || r.places.fetchError),
+    this.restaurants().filter(
+      (r) => !r.places || r.places.fetchError || !r.places.openingPeriods,
+    ),
   );
 
   /** 地図情報を取得中の店舗 ID 集合（ボタンの多重クリック防止・スピナー表示用）。 */

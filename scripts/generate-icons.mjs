@@ -42,8 +42,13 @@ for (const size of sizes) {
   console.log(`generated icon-${size}x${size}.png`);
 }
 
-// ── favicon.ico（16/32/48px マルチサイズ）─────────────────────
-const icoBuffers = await Promise.all([16, 32, 48].map((s) => renderPng(s)));
+/** SVG を指定サイズの透過 PNG にラスタライズ（favicon.ico 用。背景合成なし）*/
+async function renderTransparentPng(size) {
+  return sharp(svg, { density: 384 }).resize(size, size).png().toBuffer();
+}
+
+// ── favicon.ico（16/32/48px マルチサイズ、背景透過）───────────
+const icoBuffers = await Promise.all([16, 32, 48].map((s) => renderTransparentPng(s)));
 const ico = await pngToIco(icoBuffers);
 writeFileSync(join(root, 'public', 'favicon.ico'), ico);
 console.log('generated favicon.ico');

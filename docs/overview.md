@@ -1,6 +1,6 @@
 # システム概要
 
-lunch-picker は、Google マップに保存したお店リストから「今日のランチ」を
+ランチくじ（Lunch Roulette）は、Google マップに保存したお店リストから「今日のランチ」を
 ランダムに提案してくれる、自分専用のシンプルなツール。
 
 技術的な詳細は [ARCHITECTURE.md](../ARCHITECTURE.md) を、

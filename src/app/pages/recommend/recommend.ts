@@ -9,6 +9,8 @@ import { GoogleMap, MapMarker } from '@angular/google-maps';
 import { Restaurant } from '../../models/restaurant';
 import { RestaurantStore } from '../../services/restaurant-store';
 import { GoogleMapsLoader } from '../../services/google-maps-loader';
+import { SettingsStore } from '../../services/settings-store';
+import { getRemainingOpenMinutes } from '../../services/opening-hours';
 
 type SortMode = 'random' | 'near' | 'rating';
 
@@ -31,6 +33,7 @@ type SortMode = 'random' | 'near' | 'rating';
 export class Recommend {
   private store = inject(RestaurantStore);
   private mapsLoader = inject(GoogleMapsLoader);
+  private settings = inject(SettingsStore);
 
   /** Google Maps スクリプトの読み込みが完了したか（未完了時は地図を描画しない）。 */
   readonly mapsReady = signal(false);
@@ -50,6 +53,8 @@ export class Recommend {
   readonly selectedAreas = signal<string[]>([]);
   readonly selectedGenres = signal<string[]>([]);
   readonly selectedMoods = signal<string[]>([]);
+  /** 「昼休みに余裕がある店のみ」フィルタの有効/無効。 */
+  readonly requireLunchTime = signal(false);
 
   /** ランダム抽選で選ばれた1件 */
   readonly picked = signal<Restaurant | null>(null);
@@ -81,11 +86,18 @@ export class Recommend {
     const a = this.selectedAreas();
     const g = this.selectedGenres();
     const m = this.selectedMoods();
+    const requireLunchTime = this.requireLunchTime();
+    const lunchBreakMinutes = this.settings.lunchBreakMinutes();
     return this.store.restaurants().filter((r) => {
       const okArea = a.length === 0 || a.includes(r.area);
       const okGenre = g.length === 0 || r.genres.some((x) => g.includes(x));
       const okMood = m.length === 0 || r.moods.some((x) => m.includes(x));
-      return okArea && okGenre && okMood;
+      if (!okArea || !okGenre || !okMood) return false;
+      if (requireLunchTime) {
+        const remaining = getRemainingOpenMinutes(r.places?.openingPeriods, new Date());
+        if (remaining === null || remaining < lunchBreakMinutes) return false;
+      }
+      return true;
     });
   });
 
@@ -93,8 +105,16 @@ export class Recommend {
     () =>
       this.selectedAreas().length > 0 ||
       this.selectedGenres().length > 0 ||
-      this.selectedMoods().length > 0,
+      this.selectedMoods().length > 0 ||
+      this.requireLunchTime(),
   );
+
+  /** 「昼休みに余裕がある店のみ」フィルタの有効/無効を切り替える。 */
+  toggleRequireLunchTime(): void {
+    this.requireLunchTime.update((v) => !v);
+    this.picked.set(null);
+    this.pickedReason.set(null);
+  }
 
   toggle(sig: WritableSignal<string[]>, value: string): void {
     sig.update((list) =>
@@ -112,6 +132,7 @@ export class Recommend {
     this.selectedAreas.set([]);
     this.selectedGenres.set([]);
     this.selectedMoods.set([]);
+    this.requireLunchTime.set(false);
     this.picked.set(null);
     this.pickedReason.set(null);
   }

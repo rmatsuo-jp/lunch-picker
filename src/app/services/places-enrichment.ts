@@ -8,7 +8,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Restaurant } from '../models/restaurant';
-import { PlacesInfo } from '../models/places';
+import { OpeningPeriod, PlacesInfo } from '../models/places';
 import { SettingsStore } from './settings-store';
 
 const SEARCH_URL = 'https://places.googleapis.com/v1/places:searchText';
@@ -23,7 +23,14 @@ const FIELD_MASK = [
   'places.priceLevel',
   'places.formattedAddress',
   'places.regularOpeningHours.weekdayDescriptions',
+  'places.regularOpeningHours.periods',
 ].join(',');
+
+interface ApiTimePoint {
+  day: number;
+  hour: number;
+  minute: number;
+}
 
 interface SearchTextResponse {
   places?: Array<{
@@ -34,7 +41,10 @@ interface SearchTextResponse {
     userRatingCount?: number;
     priceLevel?: string;
     formattedAddress?: string;
-    regularOpeningHours?: { weekdayDescriptions?: string[] };
+    regularOpeningHours?: {
+      weekdayDescriptions?: string[];
+      periods?: Array<{ open: ApiTimePoint; close?: ApiTimePoint }>;
+    };
   }>;
 }
 
@@ -83,6 +93,7 @@ export class PlacesEnrichment {
         priceLevel: this.parsePriceLevel(place.priceLevel),
         address: place.formattedAddress,
         openingHoursText: place.regularOpeningHours?.weekdayDescriptions,
+        openingPeriods: this.parsePeriods(place.regularOpeningHours?.periods),
         fetchedAt,
       };
     } catch (e) {
@@ -105,6 +116,26 @@ export class PlacesEnrichment {
     ];
     const idx = level ? order.indexOf(level) : -1;
     return idx >= 0 ? idx : undefined;
+  }
+
+  /**
+   * v1 の periods を OpeningPeriod[] に変換する。
+   * close が無いエントリ（24時間営業）は判定を単純化するため対象外とする。
+   */
+  private parsePeriods(
+    periods?: Array<{ open: ApiTimePoint; close?: ApiTimePoint }>,
+  ): OpeningPeriod[] | undefined {
+    if (!periods) return undefined;
+    return periods
+      .filter((p) => p.close)
+      .map((p) => ({
+        openDay: p.open.day,
+        openHour: p.open.hour,
+        openMinute: p.open.minute,
+        closeDay: p.close!.day,
+        closeHour: p.close!.hour,
+        closeMinute: p.close!.minute,
+      }));
   }
 
   private describeError(e: unknown): string {
