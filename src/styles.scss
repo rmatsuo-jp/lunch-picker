@@ -7,6 +7,9 @@
 
 html {
   height: 100%;
+  // ネイティブのpull-to-refreshジェスチャーが.app-contentの外(document)にバブルして
+  // ブラウザ主導で発火するのを防ぐ。過渡的なviewport変化がbottom-nav高さ計算を乱す不具合対策。
+  overscroll-behavior-y: contain;
   @include mat.theme(
     (
       color: (
@@ -68,5 +71,6 @@ body {
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  overscroll-behavior-y: contain;
 }
 /* You can add global styles to this file, and also import other style files */
