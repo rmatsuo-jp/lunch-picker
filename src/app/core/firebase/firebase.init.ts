@@ -2,8 +2,8 @@
  * @file Firebase SDK の初期化。アプリ全体で 1 度だけ initializeApp() を実行し、
  * Auth と Firestore のインスタンスを生成して共有する。
  * Firestore はオフライン書き込みに耐えるため persistentLocalCache（IndexedDB）を有効化する。
- * study-english と同一の Firebase プロジェクト（my-apps-sync）を共用し、
- * Firestore 上は apps/lunch_roulette 名前空間でデータを分離する。
+ * ランチくじ専用の Firebase プロジェクト（lunch-roulette-3c777）を使い、
+ * Firestore 上は apps/lunch_roulette 名前空間でデータを管理する。
  */
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';

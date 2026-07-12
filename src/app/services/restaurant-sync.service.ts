@@ -44,8 +44,6 @@ export class RestaurantSyncService {
   }
 
   // apps/lunch_roulette/users/{uid}/restaurants/{restaurantId} のドキュメント参照を返す。
-  // 先頭の apps/lunch_roulette は、同一 Firebase プロジェクトを他アプリ（study-english 等）と
-  // 共用しても衝突しないための名前空間。
   private restaurantDoc(uid: string, restaurantId: string) {
     return doc(firestore, 'apps', 'lunch_roulette', 'users', uid, 'restaurants', restaurantId);
   }
