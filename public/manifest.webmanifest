@@ -1,7 +1,7 @@
 {
-  "name": "今日のランチおすすめ",
-  "short_name": "ランチおすすめ",
-  "description": "今日のランチをおすすめしてくれるアプリ",
+  "name": "ランチくじ",
+  "short_name": "ランチくじ",
+  "description": "気分やジャンルで絞り込んで今日のランチを1件おすすめするアプリ（Lunch Roulette）",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

@@ -1,6 +1,6 @@
 # ARCHITECTURE.md
 
-lunch-picker の技術アーキテクチャ方針をまとめたドキュメント。
+ランチくじ（Lunch Roulette）の技術アーキテクチャ方針をまとめたドキュメント。
 概要や使い方は [docs/overview.md](docs/overview.md)・[docs/user-manual.md](docs/user-manual.md) を参照。
 
 ## 1. 概要

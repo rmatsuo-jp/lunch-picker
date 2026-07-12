@@ -1,6 +1,6 @@
 # ライセンス（License）
 
-本アプリ「今日のランチおすすめ（lunch-picker）」は、以下の MIT License の条件のもとで提供されます。
+本アプリ「ランチくじ（Lunch Roulette）」は、以下の MIT License の条件のもとで提供されます。
 
 ---
 

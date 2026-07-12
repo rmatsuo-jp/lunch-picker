@@ -4,7 +4,7 @@ import { environment } from '../environments/environment';
 export const routes: Routes = [
   {
     path: '',
-    title: '今日のランチおすすめ',
+    title: 'ランチくじ',
     loadComponent: () =>
       import('./pages/recommend/recommend').then((m) => m.Recommend),
   },
