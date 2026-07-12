@@ -74,3 +74,87 @@ body {
   overscroll-behavior-y: contain;
 }
 /* You can add global styles to this file, and also import other style files */
+
+// ── ページ共通レイアウト ──────────────────────────────
+// 各ページの「カード1枚＝1セクション」を揃えるための共通クラス。
+// ページ側では個別に max-width / margin / 見出しスタイルを再定義せず、
+// これらのクラスを付与するだけで統一された見た目になる。
+
+// mat-card 等、ページ内の1セクションの外枠に付与する
+.page-section {
+  max-width: 900px;
+  margin: 16px auto;
+
+  @media (max-width: 599px) {
+    margin: 12px auto;
+  }
+}
+
+// セクション見出し（<h2>）に付与する。アイコン + テキストの並びを想定
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+// 補足説明・注記テキスト用
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
+
+// エラーメッセージ用（ログイン失敗・取得失敗等）
+.error-text {
+  color: var(--mat-sys-error, #b3261e);
+}
+
+// タグ・件数バッジ等の丸ピル型ラベル。背景色・文字色はページ側で用途に応じて上書きする
+.chip-pill {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+// dt/dd の定義リスト（設定・開発ページのバージョン情報/環境情報等で使用）
+.definition-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 0;
+
+  dt {
+    color: var(--mat-sys-on-surface-variant, #5c5f63);
+  }
+
+  dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// mat-button-toggle-group に付与する。狭い画面でラベルを折り返して横はみ出しを防ぐ。
+// mat-button-toggle は既定で min-width: auto のため中身の最小幅より縮まず、
+// 複数個横並びだと合計幅が親要素の幅を超えて右にはみ出す（横スクロールの原因）。
+.wrap-toggle-labels {
+  mat-button-toggle {
+    min-width: 0;
+  }
+
+  @media (max-width: 599px) {
+    // mat-button-toggle-label-content は mat-button-toggle が内部で生成する要素のため、
+    // Angular のスタイルカプセル化を貫通させる ::ng-deep がないと適用されない。
+    ::ng-deep .mat-button-toggle-label-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      gap: 2px;
+      padding: 8px 4px;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+  }
+}

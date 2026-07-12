@@ -26,11 +26,6 @@
   margin: 8px 0 20px;
 }
 
-.muted {
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.9rem;
-}
-
 .empty {
   text-align: center;
   margin-top: 32px;
@@ -57,6 +52,10 @@
   flex-wrap: wrap;
   gap: 8px;
   margin: -8px 0 20px;
+
+  mat-button-toggle-group {
+    max-width: 100%;
+  }
 }
 
 .places-detail {
@@ -70,8 +69,6 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
 }
 
 google-map {
@@ -79,6 +76,10 @@ google-map {
   margin: 8px 0 16px;
   border-radius: 8px;
   overflow: hidden;
+}
+
+.list-map-section {
+  margin-bottom: 24px;
 }
 
 .pick-card {
@@ -133,9 +134,6 @@ google-map {
 
 .area-tag,
 .tag {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
   background: var(--mat-sys-secondary-container);
   color: var(--mat-sys-on-secondary-container);
 }
@@ -151,8 +149,6 @@ google-map {
 }
 
 .note {
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
   margin: 6px 0;
   white-space: pre-wrap;
 }

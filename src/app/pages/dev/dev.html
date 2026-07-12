@@ -1,11 +1,11 @@
 <!-- @file 開発者用ページテンプレート。店舗データ概要・生JSON・設定/環境情報・ログイン/同期状態の4カード構成。 -->
-<mat-card class="dev-card" appearance="outlined">
+<mat-card class="page-section dev-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>storefront</mat-icon>
       店舗データ概要
     </h2>
-    <dl class="info-list">
+    <dl class="info-list definition-list">
       <dt>総件数</dt>
       <dd>{{ total() }}</dd>
       <dt>有効</dt>
@@ -22,10 +22,10 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="dev-card" appearance="outlined">
+<mat-card class="page-section dev-card" appearance="outlined">
   <mat-card-content>
     <div class="section-header">
-      <h2>
+      <h2 class="section-title">
         <mat-icon>data_object</mat-icon>
         店舗データ生JSON
       </h2>
@@ -37,13 +37,13 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="dev-card" appearance="outlined">
+<mat-card class="page-section dev-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>tune</mat-icon>
       設定・環境情報
     </h2>
-    <dl class="info-list">
+    <dl class="info-list definition-list">
       <dt>表示テーマ</dt>
       <dd>{{ theme() }}</dd>
       <dt>Google Maps API キー</dt>
@@ -56,9 +56,9 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="dev-card" appearance="outlined">
+<mat-card class="page-section dev-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>cloud_sync</mat-icon>
       ログイン・同期状態
     </h2>
@@ -68,7 +68,7 @@
       <p class="muted">未ログイン</p>
     }
     @if (loginError()) {
-      <p class="muted login-error">{{ loginError() }}</p>
+      <p class="muted error-text">{{ loginError() }}</p>
     }
 
     <div class="section-header">

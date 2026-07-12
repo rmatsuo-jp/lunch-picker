@@ -1,12 +1,12 @@
 <!-- @file 設定ページテンプレート。表示テーマ・Google Maps APIキー設定・クラウド同期・バージョン情報カードを表示する。 -->
-<mat-card class="theme-card" appearance="outlined">
+<mat-card class="page-section theme-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>dark_mode</mat-icon>
       表示テーマ
     </h2>
     <mat-button-toggle-group
-      class="theme-toggle-group"
+      class="theme-toggle-group wrap-toggle-labels"
       [value]="theme()"
       (change)="setTheme($event.value)"
     >
@@ -26,9 +26,9 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="api-key-card" appearance="outlined">
+<mat-card class="page-section api-key-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>vpn_key</mat-icon>
       Google Maps API キー
     </h2>
@@ -83,9 +83,9 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="lunch-break-card" appearance="outlined">
+<mat-card class="page-section lunch-break-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>schedule</mat-icon>
       昼休みの必要時間
     </h2>
@@ -114,9 +114,9 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="sync-card" appearance="outlined">
+<mat-card class="page-section sync-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>cloud_sync</mat-icon>
       クラウド同期
     </h2>
@@ -126,10 +126,24 @@
     </p>
 
     @if (user(); as u) {
-      <p>
-        <mat-icon inline>account_circle</mat-icon>
-        {{ u.email }} としてログイン中
-      </p>
+      <div class="account-row">
+        @if (u.photoURL) {
+          <img
+            class="account-avatar"
+            [src]="u.photoURL"
+            [alt]="u.displayName || u.email || 'アカウント'"
+            referrerpolicy="no-referrer"
+          />
+        } @else {
+          <mat-icon class="account-avatar-fallback">account_circle</mat-icon>
+        }
+        <div class="account-info">
+          @if (u.displayName) {
+            <p class="account-name">{{ u.displayName }}</p>
+          }
+          <p class="account-email muted">{{ u.email }}</p>
+        </div>
+      </div>
       <button mat-stroked-button color="warn" (click)="logout()">
         <mat-icon>logout</mat-icon>
         ログアウト
@@ -140,19 +154,19 @@
         Google でログイン
       </button>
       @if (loginError()) {
-        <p class="muted status login-error">{{ loginError() }}</p>
+        <p class="muted status error-text">{{ loginError() }}</p>
       }
     }
   </mat-card-content>
 </mat-card>
 
-<mat-card class="version-card" appearance="outlined">
+<mat-card class="page-section version-card" appearance="outlined">
   <mat-card-content>
-    <h2>
+    <h2 class="section-title">
       <mat-icon>info</mat-icon>
       バージョン情報
     </h2>
-    <dl class="version-list">
+    <dl class="definition-list">
       <dt>バージョン</dt>
       <dd>{{ version }}</dd>
       <dt>リリース日</dt>

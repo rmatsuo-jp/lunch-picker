@@ -1,6 +1,9 @@
-<mat-card class="intro" appearance="outlined">
+<mat-card class="page-section intro" appearance="outlined">
   <mat-card-content>
-    <h2>データの取り込み</h2>
+    <h2 class="section-title">
+      <mat-icon>upload_file</mat-icon>
+      データの取り込み
+    </h2>
     <p class="muted">
       Google Map のリストを
       <a href="https://takeout.google.com/" target="_blank" rel="noopener">Google Takeout</a>
@@ -14,6 +17,11 @@
         CSV を取り込む
       </button>
       <input #csvInput type="file" accept=".csv" multiple hidden (change)="onCsvSelected($event)" />
+
+      <button mat-stroked-button (click)="addSampleData()" [disabled]="importing()">
+        <mat-icon>add_circle</mat-icon>
+        サンプルデータを追加
+      </button>
 
       <button mat-stroked-button (click)="exportJson()" [disabled]="total() === 0">
         <mat-icon>download</mat-icon>
@@ -53,7 +61,7 @@
   <section class="area-group">
     <h3 class="area-heading">
       <mat-icon>place</mat-icon> {{ group.area }}
-      <span class="count-badge">{{ group.items.length }}</span>
+      <span class="count-badge chip-pill">{{ group.items.length }}</span>
     </h3>
 
     @for (r of group.items; track r.id) {
@@ -72,11 +80,11 @@
               <mat-icon>delete</mat-icon>
             </button>
           </div>
-          @if (r.note) { <p class="note">{{ r.note }}</p> }
+          @if (r.note) { <p class="note muted">{{ r.note }}</p> }
 
           <div class="places-info">
             @if (r.places && !r.places.fetchError) {
-              <span class="places-chip">
+              <span class="places-chip muted">
                 <mat-icon inline>place</mat-icon>
                 @if (r.places.rating) { {{ r.places.rating }}★ ({{ r.places.userRatingsTotal }}件) }
                 @else { 座標取得済み }
@@ -94,6 +102,51 @@
               </button>
             }
           </div>
+
+          @if (r.places && !r.places.fetchError) {
+            <div class="places-detail">
+              @if (r.places.address) {
+                <div class="places-detail-row places-address">
+                  <mat-icon inline>location_on</mat-icon>
+                  <span>{{ r.places.address }}</span>
+                </div>
+              }
+              @if (r.places.priceLevel !== undefined) {
+                <div class="places-detail-row places-price">
+                  <mat-icon inline>payments</mat-icon>
+                  <span>{{ priceLevelText(r.places.priceLevel) }}</span>
+                </div>
+              }
+              @if (r.places.openingHoursText?.length) {
+                <div class="places-detail-row places-hours">
+                  <button
+                    mat-button
+                    class="hours-toggle"
+                    (click)="toggleHours(r)"
+                  >
+                    <mat-icon inline>schedule</mat-icon>
+                    営業時間
+                    <mat-icon inline>{{ expandedHours().has(r.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+                  @if (expandedHours().has(r.id)) {
+                    <ul class="hours-list">
+                      @for (line of r.places.openingHoursText; track line) {
+                        <li>{{ line }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+              @if (r.places.types?.length) {
+                <div class="places-detail-row places-types">
+                  <mat-icon inline>sell</mat-icon>
+                  @for (t of r.places.types; track t) {
+                    <span class="type-chip chip-pill">{{ t }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
 
           <div class="tag-fields">
             <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">

@@ -9,6 +9,7 @@
  */
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { Restaurant, RestaurantData } from '../models/restaurant';
+import { readJson, writeJson } from '../core/storage';
 
 const STORAGE_KEY = 'lunch-roulette.data.v1';
 const RECENT_PICKS_KEY = 'lunch-roulette.recent-picks.v1';
@@ -141,43 +142,21 @@ export class RestaurantStore {
   }
 
   private load(): Restaurant[] {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const data = JSON.parse(raw) as RestaurantData;
-      return Array.isArray(data.restaurants)
-        ? data.restaurants.map((r) => this.normalize(r))
-        : [];
-    } catch {
-      return [];
-    }
+    const data = readJson<RestaurantData>(STORAGE_KEY, { version: 1, restaurants: [] });
+    return Array.isArray(data.restaurants) ? data.restaurants.map((r) => this.normalize(r)) : [];
   }
 
   private save(restaurants: Restaurant[]): void {
-    try {
-      const data: RestaurantData = { version: 1, restaurants };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      // ストレージ不可時は無視（プライベートブラウズ等）
-    }
+    const data: RestaurantData = { version: 1, restaurants };
+    writeJson(STORAGE_KEY, data);
   }
 
   private loadRecentPicks(): string[] {
-    try {
-      const raw = localStorage.getItem(RECENT_PICKS_KEY);
-      if (!raw) return [];
-      const ids = JSON.parse(raw) as unknown;
-      return Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : [];
-    } catch {
-      return [];
-    }
+    const ids = readJson<unknown>(RECENT_PICKS_KEY, []);
+    return Array.isArray(ids) ? ids.filter((x): x is string => typeof x === 'string') : [];
   }
 
   private saveRecentPicks(ids: string[]): void {
-    try {
-      localStorage.setItem(RECENT_PICKS_KEY, JSON.stringify(ids));
-    } catch {
-      // ストレージ不可時は無視（プライベートブラウズ等）
-    }
+    writeJson(RECENT_PICKS_KEY, ids);
   }
 }

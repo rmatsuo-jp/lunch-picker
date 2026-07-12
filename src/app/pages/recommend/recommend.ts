@@ -1,4 +1,4 @@
-import { Component, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Component, WritableSignal, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
@@ -11,8 +11,12 @@ import { RestaurantStore } from '../../services/restaurant-store';
 import { GoogleMapsLoader } from '../../services/google-maps-loader';
 import { SettingsStore } from '../../services/settings-store';
 import { getRemainingOpenMinutes } from '../../services/opening-hours';
+import { LatLng, RecommendationScorer } from '../../services/recommendation-scorer';
 
 type SortMode = 'random' | 'near' | 'rating';
+
+/** 現在地取得のタイムアウト（ミリ秒）。 */
+const GEOLOCATION_TIMEOUT_MS = 8000;
 
 /** ホーム：エリア/ジャンル/気分で絞り込み、一覧表示＋ランダム抽選でおすすめする。 */
 @Component({
@@ -34,15 +38,31 @@ export class Recommend {
   private store = inject(RestaurantStore);
   private mapsLoader = inject(GoogleMapsLoader);
   private settings = inject(SettingsStore);
+  private scorer = inject(RecommendationScorer);
 
   /** Google Maps スクリプトの読み込みが完了したか（未完了時は地図を描画しない）。 */
   readonly mapsReady = signal(false);
+
+  /** 一覧マップ（複数マーカー表示用）への参照。マーカー変化時に表示範囲を自動調整する。 */
+  private readonly listMap = viewChild(GoogleMap);
+
+  /** 一覧マップの初期中心（東京駅付近）。マーカーがあれば fitBounds() で上書きされる。 */
+  readonly defaultCenter: google.maps.LatLngLiteral = { lat: 35.681236, lng: 139.767125 };
 
   constructor() {
     this.mapsLoader
       .load()
       .then(() => this.mapsReady.set(true))
       .catch(() => this.mapsReady.set(false));
+
+    effect(() => {
+      const map = this.listMap();
+      const list = this.mappable();
+      if (!map || list.length === 0) return;
+      const bounds = new google.maps.LatLngBounds();
+      for (const r of list) bounds.extend(this.markerPosition(r));
+      map.fitBounds(bounds);
+    });
   }
 
   readonly areas = this.store.areas;
@@ -62,7 +82,7 @@ export class Recommend {
   /** 一覧の並び順。現在地取得に成功した場合のみ「近い順」を使える。 */
   readonly sortMode = signal<SortMode>('random');
   /** 現在地（取得できた場合のみ設定）。 */
-  readonly currentPos = signal<{ lat: number; lng: number } | null>(null);
+  readonly currentPos = signal<LatLng | null>(null);
   readonly locating = signal(false);
   readonly locationDenied = signal(false);
 
@@ -76,7 +96,7 @@ export class Recommend {
     if (mode === 'near') {
       const pos = this.currentPos();
       if (!pos) return list;
-      return [...list].sort((a, b) => this.distance(pos, a) - this.distance(pos, b));
+      return [...list].sort((a, b) => this.scorer.distance(pos, a) - this.scorer.distance(pos, b));
     }
     return list;
   });
@@ -101,6 +121,11 @@ export class Recommend {
     });
   });
 
+  /** 絞り込み結果のうち、座標（Places情報）を持つ店のみ（地図表示用）。 */
+  readonly mappable = computed(() =>
+    this.filtered().filter((r) => r.places?.lat != null && r.places?.lng != null),
+  );
+
   readonly hasFilter = computed(
     () =>
       this.selectedAreas().length > 0 ||
@@ -112,16 +137,14 @@ export class Recommend {
   /** 「昼休みに余裕がある店のみ」フィルタの有効/無効を切り替える。 */
   toggleRequireLunchTime(): void {
     this.requireLunchTime.update((v) => !v);
-    this.picked.set(null);
-    this.pickedReason.set(null);
+    this.resetPick();
   }
 
   toggle(sig: WritableSignal<string[]>, value: string): void {
     sig.update((list) =>
       list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
     );
-    this.picked.set(null);
-    this.pickedReason.set(null);
+    this.resetPick();
   }
 
   isSelected(sig: WritableSignal<string[]>, value: string): boolean {
@@ -133,6 +156,11 @@ export class Recommend {
     this.selectedGenres.set([]);
     this.selectedMoods.set([]);
     this.requireLunchTime.set(false);
+    this.resetPick();
+  }
+
+  /** 抽選結果（選ばれた店・選定理由）をクリアする。フィルタ変更時に呼ぶ。 */
+  private resetPick(): void {
     this.picked.set(null);
     this.pickedReason.set(null);
   }
@@ -171,12 +199,12 @@ export class Recommend {
 
     const pos = this.currentPos();
     const recent = this.store.recentPickedIds();
-    const globalMeanRating = this.meanRating(list);
+    const globalMeanRating = this.scorer.meanRating(list);
 
     let best = list[0];
     let bestScore = -Infinity;
     for (const r of list) {
-      const score = this.scoreOf(r, pos, recent, globalMeanRating);
+      const score = this.scorer.scoreOf(r, pos, recent, globalMeanRating);
       if (score > bestScore) {
         bestScore = score;
         best = r;
@@ -184,61 +212,8 @@ export class Recommend {
     }
 
     this.picked.set(best);
-    this.pickedReason.set(this.reasonFor(best, pos));
+    this.pickedReason.set(this.scorer.reasonFor(best, pos));
     this.store.recordPicked(best.id);
-  }
-
-  /** ベイズ平均による評価スコア（レビュー件数が少ない店を過大評価しない）＋距離減点＋被り減点。 */
-  private scoreOf(
-    r: Restaurant,
-    pos: { lat: number; lng: number } | null,
-    recentIds: string[],
-    globalMeanRating: number,
-  ): number {
-    const p = r.places;
-    const RATING_CONFIDENCE = 10; // ベイズ平均の重み（信頼に必要な最小レビュー件数の目安）
-
-    let score = 0;
-    if (p?.rating != null && p.userRatingsTotal != null) {
-      const v = p.userRatingsTotal;
-      const m = RATING_CONFIDENCE;
-      score += (v / (v + m)) * p.rating + (m / (v + m)) * globalMeanRating;
-    }
-
-    if (pos) {
-      const dist = this.distance(pos, r);
-      if (Number.isFinite(dist)) {
-        score -= dist * 0.1;
-      }
-    }
-
-    if (recentIds.includes(r.id)) {
-      score -= 5;
-    }
-
-    return score;
-  }
-
-  /** 絞り込み結果内の評価の平均（評価未取得の店は除く）。1件も無ければ 3.5 を仮の中庸値とする。 */
-  private meanRating(list: Restaurant[]): number {
-    const ratings = list.map((r) => r.places?.rating).filter((v): v is number => v != null);
-    if (ratings.length === 0) return 3.5;
-    return ratings.reduce((sum, v) => sum + v, 0) / ratings.length;
-  }
-
-  /** おすすめカードに表示する選定理由の1行サマリー。 */
-  private reasonFor(r: Restaurant, pos: { lat: number; lng: number } | null): string {
-    const parts: string[] = [];
-    if (r.places?.rating != null) {
-      parts.push(`評価 ${r.places.rating}（${r.places.userRatingsTotal ?? 0}件）`);
-    }
-    if (pos) {
-      const dist = this.distance(pos, r);
-      if (Number.isFinite(dist)) {
-        parts.push(dist < 1 ? `現在地から${Math.round(dist * 1000)}m` : `現在地から${dist.toFixed(1)}km`);
-      }
-    }
-    return parts.length > 0 ? parts.join('・') : 'データに基づくおすすめ';
   }
 
   /** 「近い順」選択時にブラウザの現在地取得を要求する。拒否・失敗時はランダム表示に留める。 */
@@ -264,29 +239,24 @@ export class Recommend {
         this.locationDenied.set(true);
         this.locating.set(false);
       },
-      { enableHighAccuracy: false, timeout: 8000 },
+      { enableHighAccuracy: false, timeout: GEOLOCATION_TIMEOUT_MS },
     );
-  }
-
-  /** 現在地からの直線距離（km、Haversine公式）。座標未取得の店は Infinity 扱い。 */
-  private distance(pos: { lat: number; lng: number }, r: Restaurant): number {
-    const p = r.places;
-    if (!p || (p.lat === 0 && p.lng === 0)) return Infinity;
-    const R = 6371;
-    const dLat = this.toRad(p.lat - pos.lat);
-    const dLng = this.toRad(p.lng - pos.lng);
-    const a =
-      Math.sin(dLat / 2) ** 2 +
-      Math.cos(this.toRad(pos.lat)) * Math.cos(this.toRad(p.lat)) * Math.sin(dLng / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  }
-
-  private toRad(deg: number): number {
-    return (deg * Math.PI) / 180;
   }
 
   /** おすすめカードの地図中心座標（マーカーと同じ位置）。 */
   mapCenter(r: Restaurant): google.maps.LatLngLiteral {
     return { lat: r.places?.lat ?? 0, lng: r.places?.lng ?? 0 };
+  }
+
+  /** 一覧マップ用マーカー座標。 */
+  markerPosition(r: Restaurant): google.maps.LatLngLiteral {
+    return { lat: r.places?.lat ?? 0, lng: r.places?.lng ?? 0 };
+  }
+
+  /** 一覧マップのマーカーをクリックした店を「今日はここ！」として表示する。 */
+  onMarkerClick(r: Restaurant): void {
+    this.picked.set(r);
+    this.pickedReason.set(null);
+    this.store.recordPicked(r.id);
   }
 }

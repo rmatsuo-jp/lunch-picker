@@ -11,8 +11,6 @@ import { RestaurantStore } from '../../services/restaurant-store';
 import { SettingsStore } from '../../services/settings-store';
 import { AuthService } from '../../core/firebase/auth.service';
 
-const RECENT_PICKS_KEY = 'lunch-roulette.recent-picks.v1';
-
 @Component({
   selector: 'app-dev',
   imports: [MatCardModule, MatIconModule, MatButtonModule],
@@ -45,7 +43,9 @@ export class Dev {
   // ── d. ログイン・同期状態 ──────────────────────────────────────
   protected readonly user = this.auth.user;
   protected readonly loginError = this.auth.loginError;
-  protected readonly recentPicksJson = computed(() => this.loadRecentPicks());
+  protected readonly recentPicksJson = computed(() =>
+    JSON.stringify(this.restaurants.recentPickedIds(), null, 2),
+  );
 
   // ── 共通: クリップボードコピー（ボタンごとに一時的に「コピーしました」を表示） ─
   protected readonly copiedKey = signal<string | null>(null);
@@ -62,14 +62,5 @@ export class Dev {
     if (!key) return '(未設定)';
     if (key.length <= 8) return '****';
     return `${key.slice(0, 4)}...${key.slice(-4)}`;
-  }
-
-  private loadRecentPicks(): string {
-    try {
-      const raw = localStorage.getItem(RECENT_PICKS_KEY);
-      return raw ? JSON.stringify(JSON.parse(raw), null, 2) : '[]';
-    } catch {
-      return '(読み込みエラー)';
-    }
   }
 }

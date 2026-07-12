@@ -4,6 +4,7 @@
  * PlacesEnrichment / GoogleMapsLoader / App コンポーネントから参照される。
  */
 import { Injectable, computed, effect, signal } from '@angular/core';
+import { readJson, writeJson } from '../core/storage';
 
 const STORAGE_KEY = 'lunch-roulette.settings.v1';
 
@@ -65,26 +66,16 @@ export class SettingsStore {
       theme: 'system',
       lunchBreakMinutes: DEFAULT_LUNCH_BREAK_MINUTES,
     };
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return fallback;
-      const parsed = JSON.parse(raw) as Partial<SettingsData>;
-      return {
-        version: 3,
-        googleMapsApiKey: parsed.googleMapsApiKey ?? '',
-        theme: parsed.theme ?? 'system',
-        lunchBreakMinutes: parsed.lunchBreakMinutes ?? DEFAULT_LUNCH_BREAK_MINUTES,
-      };
-    } catch {
-      return fallback;
-    }
+    const parsed = readJson<Partial<SettingsData>>(STORAGE_KEY, fallback);
+    return {
+      version: 3,
+      googleMapsApiKey: parsed.googleMapsApiKey ?? '',
+      theme: parsed.theme ?? 'system',
+      lunchBreakMinutes: parsed.lunchBreakMinutes ?? DEFAULT_LUNCH_BREAK_MINUTES,
+    };
   }
 
   private save(data: SettingsData): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    } catch {
-      // ストレージ不可時は無視（プライベートブラウズ等）
-    }
+    writeJson(STORAGE_KEY, data);
   }
 }
