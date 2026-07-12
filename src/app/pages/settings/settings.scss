@@ -1,17 +1,5 @@
-/* @file 設定ページのスタイル。表示テーマ・APIキー設定・バージョン情報カードの見た目を整える。 */
-.theme-card {
-  max-width: 480px;
-  margin: 16px auto;
-
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 8px;
-    font-size: 1.1rem;
-  }
-}
-
+/* @file 設定ページのスタイル。表示テーマ・APIキー設定・バージョン情報カードの見た目を整える。
+   カードの幅・余白・見出しは styles.scss の .page-section / .section-title に統一済み。 */
 .theme-toggle-group {
   width: 100%;
   max-width: 100%;
@@ -24,24 +12,6 @@
     // 0にして縮小を許可し、ラベル文言は折り返しで対応する。
     min-width: 0;
   }
-}
-
-.api-key-card {
-  max-width: 480px;
-  margin: 16px auto;
-
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 8px;
-    font-size: 1.1rem;
-  }
-}
-
-.muted {
-  color: var(--mat-sys-on-surface-variant, #5c5f63);
-  font-size: 0.85rem;
 }
 
 .api-key-field {
@@ -59,34 +29,8 @@
   margin: 0;
 }
 
-.sync-card {
-  max-width: 480px;
-  margin: 16px auto;
-
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 8px;
-    font-size: 1.1rem;
-  }
-}
-
 .login-error {
   color: var(--mat-sys-error, #b3261e);
-}
-
-.version-card {
-  max-width: 480px;
-  margin: 16px auto;
-
-  h2 {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 12px;
-    font-size: 1.1rem;
-  }
 }
 
 .version-list {
@@ -105,16 +49,8 @@
   }
 }
 
-// ── 狭い画面向け: カード間の余白を詰め、テーマ切り替えのラベル折り返しによる縦伸びを防ぐ ──
+// ── 狭い画面向け: テーマ切り替えのラベル折り返しによる縦伸びを防ぐ（カード間余白は .page-section が担当） ──
 @media (max-width: 599px) {
-  .theme-card,
-  .api-key-card,
-  .lunch-break-card,
-  .sync-card,
-  .version-card {
-    margin: 12px auto;
-  }
-
   // mat-button-toggle-label-content は mat-button-toggle が内部で生成する要素のため、
   // Angular のスタイルカプセル化を貫通させる ::ng-deep がないと適用されない。
   .theme-toggle-group ::ng-deep .mat-button-toggle-label-content {

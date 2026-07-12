@@ -74,3 +74,33 @@ body {
   overscroll-behavior-y: contain;
 }
 /* You can add global styles to this file, and also import other style files */
+
+// ── ページ共通レイアウト ──────────────────────────────
+// 各ページの「カード1枚＝1セクション」を揃えるための共通クラス。
+// ページ側では個別に max-width / margin / 見出しスタイルを再定義せず、
+// これらのクラスを付与するだけで統一された見た目になる。
+
+// mat-card 等、ページ内の1セクションの外枠に付与する
+.page-section {
+  max-width: 900px;
+  margin: 16px auto;
+
+  @media (max-width: 599px) {
+    margin: 12px auto;
+  }
+}
+
+// セクション見出し（<h2>）に付与する。アイコン + テキストの並びを想定
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+// 補足説明・注記テキスト用
+.muted {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 0.85rem;
+}
