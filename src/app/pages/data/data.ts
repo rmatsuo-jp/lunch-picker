@@ -88,6 +88,27 @@ export class Data {
     }
   }
 
+  /** 同梱のサンプルCSV（恵比寿ランチ）を取り込む。動作確認用。 */
+  async addSampleData(): Promise<void> {
+    this.importing.set(true);
+    try {
+      const res = await fetch('sample-data/恵比寿ランチ.csv');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const parsed = this.csv.parseText(text, 'サンプル：恵比寿');
+      const added = this.store.addMany(parsed);
+      const skipped = parsed.length - added;
+      this.notify(
+        `サンプルデータを${added}件追加しました` +
+          (skipped > 0 ? `（重複 ${skipped}件はスキップ）` : ''),
+      );
+    } catch (e) {
+      this.notify('サンプルデータの取得に失敗しました: ' + (e as Error).message);
+    } finally {
+      this.importing.set(false);
+    }
+  }
+
   /** ジャンル選択（複数選択ドロップダウン）の確定。 */
   setGenres(r: Restaurant, values: string[]): void {
     this.store.update(r.id, { genres: values });

@@ -18,6 +18,11 @@
       </button>
       <input #csvInput type="file" accept=".csv" multiple hidden (change)="onCsvSelected($event)" />
 
+      <button mat-stroked-button (click)="addSampleData()" [disabled]="importing()">
+        <mat-icon>add_circle</mat-icon>
+        サンプルデータを追加
+      </button>
+
       <button mat-stroked-button (click)="exportJson()" [disabled]="total() === 0">
         <mat-icon>download</mat-icon>
         JSON 書き出し
