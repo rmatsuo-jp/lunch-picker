@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/rmatsuo-jp/lunch-roulette/compare/v0.4.0...v0.5.0) (2026-07-12)
+
+
+### Features
+
+* Firestoreセキュリティルールをリポジトリ管理化しCIで自動デプロイ ([6e497be](https://github.com/rmatsuo-jp/lunch-roulette/commit/6e497bee91a709c2d6c0f29709dc922e0a13b368))
+
 # [0.4.0](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.3.2...v0.4.0) (2026-07-12)
 
 
