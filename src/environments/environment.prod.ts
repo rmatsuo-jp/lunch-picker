@@ -2,7 +2,7 @@
  * @file 本番環境用の設定値。Google Maps Platform の API キー、および Firebase 構成
  * （クライアント公開情報）を保持する。本番ドメインのみを許可する HTTP リファラー制限と、
  * Places API のみへの API 制限をかけたキーを設定する。Firebase は study-english と
- * 同一プロジェクト（my-apps-sync）を Firestore 上の apps/lunch_picker 名前空間で分離して共用する。
+ * 同一プロジェクト（my-apps-sync）を Firestore 上の apps/lunch_roulette 名前空間で分離して共用する。
  */
 export const environment = {
   production: true,

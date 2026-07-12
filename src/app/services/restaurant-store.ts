@@ -10,8 +10,8 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { Restaurant, RestaurantData } from '../models/restaurant';
 
-const STORAGE_KEY = 'lunch-picker.data.v1';
-const RECENT_PICKS_KEY = 'lunch-picker.recent-picks.v1';
+const STORAGE_KEY = 'lunch-roulette.data.v1';
+const RECENT_PICKS_KEY = 'lunch-roulette.recent-picks.v1';
 /** 直近履歴として保持する最大件数（「おすすめ」の被り回避判定に使う）。 */
 const RECENT_PICKS_LIMIT = 5;
 

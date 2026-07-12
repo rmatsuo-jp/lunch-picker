@@ -4,7 +4,7 @@
  * environment.prod.ts に差し替えられる。Google Maps 側の保護は Google Cloud Console の
  * HTTP リファラー制限・API制限（Places API のみ許可）で、Firebase 側は Firestore
  * セキュリティルール（ホワイトリスト制）で担保する。study-english と同一の Firebase
- * プロジェクト（my-apps-sync）を、Firestore 上は apps/lunch_picker 名前空間で分離して共用する。
+ * プロジェクト（my-apps-sync）を、Firestore 上は apps/lunch_roulette 名前空間で分離して共用する。
  */
 export const environment = {
   production: false,
