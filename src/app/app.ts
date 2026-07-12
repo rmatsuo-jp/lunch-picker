@@ -8,8 +8,10 @@
  * （PC のサイドバー表示時は app.scss 側で `--bottom-nav-height` を 0 に固定するため対象外）。
  */
 import { Component, ElementRef, afterNextRender, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { filter, map } from 'rxjs';
 import { environment } from '../environments/environment';
 import { SettingsStore } from './services/settings-store';
 import { RestaurantSyncService } from './services/restaurant-sync.service';
@@ -25,12 +27,26 @@ export class App {
   // 起動時に生成することでログイン監視・クラウド同期の effect を有効化する（他では未使用のため注入のみ必要）。
   private readonly restaurantSync = inject(RestaurantSyncService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   private bottomNav = viewChild<ElementRef<HTMLElement>>('bottomNav');
   private readonly desktopMedia = window.matchMedia('(min-width: 768px)');
 
   // ── サイドバー（PCレイアウト時のみ）の格納状態。既定値 false = 表示中 ──
   protected sidebarCollapsed = signal(false);
+
+  // ── モバイル用ページヘッダーに表示する現在ルートのタイトル（app.routes.ts の title を再利用） ──
+  protected readonly pageTitle = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(() => {
+        let route = this.router.routerState.snapshot.root;
+        while (route.firstChild) route = route.firstChild;
+        return route.title ?? '';
+      }),
+    ),
+    { initialValue: this.router.routerState.snapshot.root.title ?? '' },
+  );
 
   // ── 開発用ナビ項目の表示可否（本番ビルドでは /dev ルート自体が存在しないため非表示にする） ──
   protected readonly isDev = !environment.production;

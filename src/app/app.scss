@@ -9,6 +9,25 @@
   // この値はJS実行前の初期値・フォールバックに過ぎず、app.tsのResizeObserverが
   // #bottomNavの実高さ（ラベル折り返し等で変動しうる）で同じ要素に上書きする。
   --bottom-nav-height: 4.5rem;
+  // モバイル用ページヘッダー（テキスト1行のみで高さが変動しないため固定値でよい。bottom-nav-heightと異なりResizeObserverは不要）
+  --app-header-height: 3rem;
+}
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  height: var(--app-header-height);
+  padding: env(safe-area-inset-top) 16px 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .app-content {
@@ -19,6 +38,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 16px;
+  padding-top: calc(var(--app-header-height) + env(safe-area-inset-top) + 16px);
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
 }
 
@@ -50,6 +70,10 @@
 
   &.active {
     color: var(--mat-sys-primary);
+    background: var(--mat-sys-secondary-container);
+    border-radius: 12px;
+    margin: 4px 4px;
+    padding: 4px 0;
   }
 
   mat-icon {
@@ -68,6 +92,11 @@
     flex-direction: row;
     // サイドバー化するため下部タブ用の余白確保は不要
     --bottom-nav-height: 0rem;
+  }
+
+  // PCではサイドバーにアプリ名が表示されるため、モバイル用ページヘッダーは不要
+  .app-header {
+    display: none;
   }
 
   .app-nav {
@@ -158,6 +187,7 @@
 
   .app-content {
     max-width: none;
+    padding-top: 16px;
     padding-bottom: 16px;
     margin-left: 220px;
     width: calc(100% - 220px);
