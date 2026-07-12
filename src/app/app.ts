@@ -70,18 +70,23 @@ export class App {
     if (!el || !shell) return;
 
     let lastHeight = -1;
+    let rafId = -1;
     const applyHeight = () => {
-      if (this.desktopMedia.matches) return;
-      const height = el.offsetHeight;
-      if (height === lastHeight) return;
-      lastHeight = height;
-      shell.style.setProperty('--bottom-nav-height', `${height}px`);
+      // pull-to-refresh中のchrome表示アニメーション等、viewport変化の過渡フレームで
+      // offsetHeightを誤読しないよう1フレーム遅延させてから読み取る。
+      window.cancelAnimationFrame(rafId);
+      rafId = window.requestAnimationFrame(() => {
+        if (this.desktopMedia.matches) return;
+        const height = el.offsetHeight;
+        if (height === lastHeight) return;
+        lastHeight = height;
+        shell.style.setProperty('--bottom-nav-height', `${height}px`);
+      });
     };
 
     const observer = new ResizeObserver(applyHeight);
     observer.observe(el);
     this.desktopMedia.addEventListener('change', applyHeight);
-    window.addEventListener('resize', applyHeight);
     window.visualViewport?.addEventListener('resize', applyHeight);
     const deferredCheck = window.setTimeout(applyHeight, 300);
     applyHeight();
@@ -89,9 +94,9 @@ export class App {
     this.destroyRef.onDestroy(() => {
       observer.disconnect();
       this.desktopMedia.removeEventListener('change', applyHeight);
-      window.removeEventListener('resize', applyHeight);
       window.visualViewport?.removeEventListener('resize', applyHeight);
       window.clearTimeout(deferredCheck);
+      window.cancelAnimationFrame(rafId);
     });
   }
 
