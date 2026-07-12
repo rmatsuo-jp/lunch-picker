@@ -107,8 +107,11 @@ flowchart TD
 - `src/version.ts`（`APP_VERSION`/`RELEASE_DATE`）はリリース時のみ
   `scripts/generate-version.mjs` が生成する（`npm start`/`build` では再生成しない）。
 - `.github/workflows/deploy.yml` — main への push で
-  semantic-release → ビルド（`--base-href=/lunch-roulette/`）→
+  semantic-release → Firestore ルール（`firestore.rules`）を `firebase-tools deploy`
+  でデプロイ → ビルド（`--base-href=/lunch-roulette/`）→
   `index.html` を `404.html` にコピー → GitHub Pages へデプロイ。
+  Firestore ルールのデプロイには GitHub Secrets の `FIREBASE_TOKEN`
+  （`firebase login:ci` で発行）を使用する。
 
 ## 6. 今後の方針判断のための指針
 
