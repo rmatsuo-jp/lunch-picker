@@ -1,4 +1,4 @@
-import { Component, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Component, WritableSignal, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
@@ -43,11 +43,26 @@ export class Recommend {
   /** Google Maps スクリプトの読み込みが完了したか（未完了時は地図を描画しない）。 */
   readonly mapsReady = signal(false);
 
+  /** 一覧マップ（複数マーカー表示用）への参照。マーカー変化時に表示範囲を自動調整する。 */
+  private readonly listMap = viewChild(GoogleMap);
+
+  /** 一覧マップの初期中心（東京駅付近）。マーカーがあれば fitBounds() で上書きされる。 */
+  readonly defaultCenter: google.maps.LatLngLiteral = { lat: 35.681236, lng: 139.767125 };
+
   constructor() {
     this.mapsLoader
       .load()
       .then(() => this.mapsReady.set(true))
       .catch(() => this.mapsReady.set(false));
+
+    effect(() => {
+      const map = this.listMap();
+      const list = this.mappable();
+      if (!map || list.length === 0) return;
+      const bounds = new google.maps.LatLngBounds();
+      for (const r of list) bounds.extend(this.markerPosition(r));
+      map.fitBounds(bounds);
+    });
   }
 
   readonly areas = this.store.areas;
@@ -105,6 +120,11 @@ export class Recommend {
       return true;
     });
   });
+
+  /** 絞り込み結果のうち、座標（Places情報）を持つ店のみ（地図表示用）。 */
+  readonly mappable = computed(() =>
+    this.filtered().filter((r) => r.places?.lat != null && r.places?.lng != null),
+  );
 
   readonly hasFilter = computed(
     () =>
@@ -226,5 +246,17 @@ export class Recommend {
   /** おすすめカードの地図中心座標（マーカーと同じ位置）。 */
   mapCenter(r: Restaurant): google.maps.LatLngLiteral {
     return { lat: r.places?.lat ?? 0, lng: r.places?.lng ?? 0 };
+  }
+
+  /** 一覧マップ用マーカー座標。 */
+  markerPosition(r: Restaurant): google.maps.LatLngLiteral {
+    return { lat: r.places?.lat ?? 0, lng: r.places?.lng ?? 0 };
+  }
+
+  /** 一覧マップのマーカーをクリックした店を「今日はここ！」として表示する。 */
+  onMarkerClick(r: Restaurant): void {
+    this.picked.set(r);
+    this.pickedReason.set(null);
+    this.store.recordPicked(r.id);
   }
 }

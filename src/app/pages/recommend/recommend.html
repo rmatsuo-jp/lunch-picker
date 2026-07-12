@@ -117,6 +117,21 @@
     }
   </div>
 
+  @if (mapsReady() && mappable().length > 0) {
+    <section class="list-map-section">
+      <h3 class="list-heading">
+        地図で見る（{{ mappable().length }}/{{ filtered().length }}件）
+      </h3>
+      <google-map height="320px" width="100%" [center]="defaultCenter" [zoom]="13">
+        @for (r of mappable(); track r.id) {
+          <map-marker [position]="markerPosition(r)" [title]="r.name" (mapClick)="onMarkerClick(r)" />
+        }
+      </google-map>
+    </section>
+  } @else if (mapsReady() && filtered().length > 0) {
+    <p class="muted">地図表示できる店舗がありません（Places情報未取得）。取り込み画面から取得してください。</p>
+  }
+
   @if (picked(); as p) {
     <mat-card class="pick-card" appearance="outlined">
       <mat-card-content>
