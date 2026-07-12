@@ -1,8 +1,11 @@
 <!-- @file アプリシェル。router-outlet（メインコンテンツ）と単一の nav（#bottomNav）を配置する。
      nav はモバイル幅では画面下部の固定タブバー、PC幅（768px以上）ではサイドバーに変形し、
      PCレイアウトでは先頭にアプリタイトル（sidebar-title）+ 格納/展開トグル（sidebar-toggle）を表示する
-     （app.ts の sidebarCollapsed signal に連動）。isDev のときのみ開発タブ（/dev）を表示する。 -->
+     （app.ts の sidebarCollapsed signal に連動）。isDev のときのみ開発タブ（/dev）を表示する。
+     app-header はモバイル幅専用の現在ページ名表示（app.ts の pageTitle signal、PC幅では非表示）。 -->
 <div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed()">
+  <header class="app-header">{{ pageTitle() }}</header>
+
   <main class="app-content">
     <router-outlet />
   </main>
