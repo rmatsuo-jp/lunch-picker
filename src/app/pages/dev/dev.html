@@ -5,7 +5,7 @@
       <mat-icon>storefront</mat-icon>
       店舗データ概要
     </h2>
-    <dl class="info-list">
+    <dl class="info-list definition-list">
       <dt>総件数</dt>
       <dd>{{ total() }}</dd>
       <dt>有効</dt>
@@ -43,7 +43,7 @@
       <mat-icon>tune</mat-icon>
       設定・環境情報
     </h2>
-    <dl class="info-list">
+    <dl class="info-list definition-list">
       <dt>表示テーマ</dt>
       <dd>{{ theme() }}</dd>
       <dt>Google Maps API キー</dt>
@@ -68,7 +68,7 @@
       <p class="muted">未ログイン</p>
     }
     @if (loginError()) {
-      <p class="muted login-error">{{ loginError() }}</p>
+      <p class="muted error-text">{{ loginError() }}</p>
     }
 
     <div class="section-header">

@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import Papa from 'papaparse';
 import { Restaurant } from '../models/restaurant';
 
+/** 店名列として認識する候補キー（ヘッダー行の判定・値の抽出の両方で使う）。 */
+const NAME_COLUMN_KEYS = ['title', 'name', 'タイトル', '名前', '店名'];
+
 /**
  * Google Takeout（保存済みリスト）の CSV を Restaurant[] へ変換する。
  *
@@ -39,7 +42,7 @@ export class CsvImport {
     const rows = parsed.data ?? [];
     const out: Restaurant[] = [];
     for (const row of rows) {
-      const name = this.pick(row, ['title', 'name', 'タイトル', '名前', '店名']);
+      const name = this.pick(row, NAME_COLUMN_KEYS);
       if (!name) continue; // 店名が無い行はスキップ
       out.push({
         id: crypto.randomUUID(),
@@ -61,8 +64,8 @@ export class CsvImport {
    */
   private sliceFromHeader(text: string): string {
     const lines = text.split(/\r?\n/);
-    // 既知の列名のいずれかを含む最初の行をヘッダーとみなす。
-    const headerKeys = ['title', 'name', 'url', 'タイトル', '名前', '店名'];
+    // 既知の列名のいずれかを含む最初の行をヘッダーとみなす（店名列 + url列）。
+    const headerKeys = [...NAME_COLUMN_KEYS, 'url'];
     const idx = lines.findIndex((line) => {
       const cells = line.toLowerCase().split(',').map((c) => c.trim());
       return cells.some((c) => headerKeys.includes(c));

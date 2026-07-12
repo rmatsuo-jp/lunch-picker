@@ -33,9 +33,6 @@
 }
 
 .count-badge {
-  font-size: 0.75rem;
-  padding: 1px 8px;
-  border-radius: 10px;
   background: var(--mat-sys-primary-container);
   color: var(--mat-sys-on-primary-container);
 }
@@ -65,8 +62,6 @@
 }
 
 .note {
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
   margin: 4px 0 8px;
   white-space: pre-wrap;
 }
@@ -83,8 +78,6 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
 }
 
 .places-error {

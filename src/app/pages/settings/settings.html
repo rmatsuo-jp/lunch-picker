@@ -6,7 +6,7 @@
       表示テーマ
     </h2>
     <mat-button-toggle-group
-      class="theme-toggle-group"
+      class="theme-toggle-group wrap-toggle-labels"
       [value]="theme()"
       (change)="setTheme($event.value)"
     >
@@ -140,7 +140,7 @@
         Google でログイン
       </button>
       @if (loginError()) {
-        <p class="muted status login-error">{{ loginError() }}</p>
+        <p class="muted status error-text">{{ loginError() }}</p>
       }
     }
   </mat-card-content>
@@ -152,7 +152,7 @@
       <mat-icon>info</mat-icon>
       バージョン情報
     </h2>
-    <dl class="version-list">
+    <dl class="definition-list">
       <dt>バージョン</dt>
       <dd>{{ version }}</dd>
       <dt>リリース日</dt>

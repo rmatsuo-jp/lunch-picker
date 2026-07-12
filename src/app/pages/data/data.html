@@ -56,7 +56,7 @@
   <section class="area-group">
     <h3 class="area-heading">
       <mat-icon>place</mat-icon> {{ group.area }}
-      <span class="count-badge">{{ group.items.length }}</span>
+      <span class="count-badge chip-pill">{{ group.items.length }}</span>
     </h3>
 
     @for (r of group.items; track r.id) {
@@ -75,11 +75,11 @@
               <mat-icon>delete</mat-icon>
             </button>
           </div>
-          @if (r.note) { <p class="note">{{ r.note }}</p> }
+          @if (r.note) { <p class="note muted">{{ r.note }}</p> }
 
           <div class="places-info">
             @if (r.places && !r.places.fetchError) {
-              <span class="places-chip">
+              <span class="places-chip muted">
                 <mat-icon inline>place</mat-icon>
                 @if (r.places.rating) { {{ r.places.rating }}★ ({{ r.places.userRatingsTotal }}件) }
                 @else { 座標取得済み }

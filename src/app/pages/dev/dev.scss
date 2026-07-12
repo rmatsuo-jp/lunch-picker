@@ -17,18 +17,7 @@
 }
 
 .info-list {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 16px;
-  margin: 0;
-
-  dt {
-    color: var(--mat-sys-on-surface-variant, #5c5f63);
-  }
-
   dd {
-    margin: 0;
-    font-variant-numeric: tabular-nums;
     word-break: break-all;
   }
 }
@@ -46,6 +35,3 @@
   resize: vertical;
 }
 
-.login-error {
-  color: var(--mat-sys-error, #b3261e);
-}

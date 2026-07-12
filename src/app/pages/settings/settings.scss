@@ -7,10 +7,6 @@
 
   mat-button-toggle {
     flex: 1;
-    // flexアイテムは既定でmin-width:autoのため中身の最小幅より縮まず、
-    // 3つ横並びだと合計幅がカード幅を超えて右にはみ出す（横スクロールの原因）。
-    // 0にして縮小を許可し、ラベル文言は折り返しで対応する。
-    min-width: 0;
   }
 }
 
@@ -29,39 +25,3 @@
   margin: 0;
 }
 
-.login-error {
-  color: var(--mat-sys-error, #b3261e);
-}
-
-.version-list {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 16px;
-  margin: 0;
-
-  dt {
-    color: var(--mat-sys-on-surface-variant, #5c5f63);
-  }
-
-  dd {
-    margin: 0;
-    font-variant-numeric: tabular-nums;
-  }
-}
-
-// ── 狭い画面向け: テーマ切り替えのラベル折り返しによる縦伸びを防ぐ（カード間余白は .page-section が担当） ──
-@media (max-width: 599px) {
-  // mat-button-toggle-label-content は mat-button-toggle が内部で生成する要素のため、
-  // Angular のスタイルカプセル化を貫通させる ::ng-deep がないと適用されない。
-  .theme-toggle-group ::ng-deep .mat-button-toggle-label-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 2px;
-    padding: 8px 4px;
-    line-height: 1.2;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-}

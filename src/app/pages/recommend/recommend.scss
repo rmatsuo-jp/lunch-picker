@@ -55,13 +55,6 @@
 
   mat-button-toggle-group {
     max-width: 100%;
-
-    mat-button-toggle {
-      // flexアイテムは既定でmin-width:autoのため中身の最小幅より縮まず、
-      // 3つ横並びだと合計幅がカード幅を超えて右にはみ出す（横スクロールの原因）。
-      // 0にして縮小を許可し、ラベル文言は折り返しで対応する（settings.scssと同じ対策）。
-      min-width: 0;
-    }
   }
 }
 
@@ -76,8 +69,6 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
 }
 
 google-map {
@@ -139,9 +130,6 @@ google-map {
 
 .area-tag,
 .tag {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 12px;
   background: var(--mat-sys-secondary-container);
   color: var(--mat-sys-on-secondary-container);
 }
@@ -157,8 +145,6 @@ google-map {
 }
 
 .note {
-  font-size: 0.85rem;
-  color: var(--mat-sys-on-surface-variant);
   margin: 6px 0;
   white-space: pre-wrap;
 }
@@ -168,21 +154,4 @@ google-map {
   align-items: center;
   gap: 2px;
   font-size: 0.85rem;
-}
-
-// ── 狭い画面向け: 並び順トグルのラベル折り返しによる横はみ出しを防ぐ（settings.scssと同じ対策） ──
-@media (max-width: 599px) {
-  // mat-button-toggle-label-content は mat-button-toggle が内部で生成する要素のため、
-  // Angular のスタイルカプセル化を貫通させる ::ng-deep がないと適用されない。
-  .sort-row mat-button-toggle-group ::ng-deep .mat-button-toggle-label-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    gap: 2px;
-    padding: 8px 4px;
-    line-height: 1.2;
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
 }
