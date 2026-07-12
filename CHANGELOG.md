@@ -1,3 +1,17 @@
+# [0.4.0](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.3.2...v0.4.0) (2026-07-12)
+
+
+### Features
+
+* モバイル用ページタイトルヘッダーを追加し設定画面の横スクロールを解消 ([49b4057](https://github.com/rmatsuo-jp/lunch-picker/commit/49b405781735a81ff86bc79f6fe729ad853b89de))
+
+## [0.3.2](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.3.1...v0.3.2) (2026-07-12)
+
+
+### Bug Fixes
+
+* 2回目のpull-to-refreshが効かずボトムナビが隠れる不具合を修正 ([62cc177](https://github.com/rmatsuo-jp/lunch-picker/commit/62cc177fd4f5728d0ac643ce64b31f38207fe1d0))
+
 ## [0.3.1](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.3.0...v0.3.1) (2026-07-12)
 
 
