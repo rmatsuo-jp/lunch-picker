@@ -1,5 +1,5 @@
 @if (total() === 0) {
-  <mat-card class="empty">
+  <mat-card class="empty page-section">
     <mat-card-content>
       <mat-icon class="empty-icon">restaurant_menu</mat-icon>
       <p>まだお店が登録されていません。</p>
@@ -13,6 +13,7 @@
     </mat-card-content>
   </mat-card>
 } @else {
+  <div class="page-section">
   <section class="filters">
     <div class="filter-group">
       <h3>エリア</h3>
@@ -186,5 +187,6 @@
         </mat-card-content>
       </mat-card>
     }
+  </div>
   </div>
 }

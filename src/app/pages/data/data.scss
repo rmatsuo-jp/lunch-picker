@@ -103,3 +103,11 @@
   flex: 1 1 240px;
   min-width: 220px;
 }
+
+// ── 狭い画面向け: 220px最小幅だと2つ横並びでカード幅を超えるため1カラム積みにする ──
+@media (max-width: 599px) {
+  .tag-field {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+}
