@@ -53,6 +53,9 @@ export class Settings {
   protected readonly showKey = signal(false);
   protected readonly hasSavedKey = this.settings.googleMapsApiKey;
 
+  /** 昼休みの必要時間（分）の入力欄の一時的な値。 */
+  protected readonly lunchBreakMinutesInput = signal(this.settings.lunchBreakMinutes());
+
   toggleShowKey(): void {
     this.showKey.update((v) => !v);
   }
@@ -71,6 +74,14 @@ export class Settings {
     this.settings.clearGoogleMapsApiKey();
     this.apiKeyInput.set('');
     this.notify('Google Maps API キーを削除しました');
+  }
+
+  /** 昼休みの必要時間（分）を保存する。 */
+  saveLunchBreakMinutes(): void {
+    const minutes = Math.max(0, Math.floor(this.lunchBreakMinutesInput()));
+    this.lunchBreakMinutesInput.set(minutes);
+    this.settings.setLunchBreakMinutes(minutes);
+    this.notify('昼休みの必要時間を保存しました');
   }
 
   /** Google でログイン（クラウド同期を開始）。 */

@@ -83,6 +83,37 @@
   </mat-card-content>
 </mat-card>
 
+<mat-card class="lunch-break-card" appearance="outlined">
+  <mat-card-content>
+    <h2>
+      <mat-icon>schedule</mat-icon>
+      昼休みの必要時間
+    </h2>
+    <p class="muted">
+      「今日のおすすめ」画面の「昼休みに余裕がある店のみ」フィルタで使う、
+      食事に最低限必要な時間（分）です。残りの営業時間がこれより短い店は除外されます。
+    </p>
+
+    <mat-form-field appearance="outline" class="lunch-break-field">
+      <mat-label>必要時間（分）</mat-label>
+      <input
+        matInput
+        type="number"
+        min="0"
+        [ngModel]="lunchBreakMinutesInput()"
+        (ngModelChange)="lunchBreakMinutesInput.set($event)"
+      />
+    </mat-form-field>
+
+    <div class="lunch-break-actions">
+      <button mat-flat-button color="primary" (click)="saveLunchBreakMinutes()">
+        <mat-icon>save</mat-icon>
+        保存
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card>
+
 <mat-card class="sync-card" appearance="outlined">
   <mat-card-content>
     <h2>
