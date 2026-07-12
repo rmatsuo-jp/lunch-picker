@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.3.0...v0.3.1) (2026-07-12)
+
+
+### Bug Fixes
+
+* PWAアイコンの背景を透過にし余白を除去 ([cf4fba0](https://github.com/rmatsuo-jp/lunch-picker/commit/cf4fba018cfe771eecaed2d3b6913d121ae67d6f))
+
 # [0.3.0](https://github.com/rmatsuo-jp/lunch-picker/compare/v0.2.0...v0.3.0) (2026-07-12)
 
 
