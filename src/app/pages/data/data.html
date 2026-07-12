@@ -40,12 +40,6 @@
           全削除
         </button>
       }
-      @if (pending().length > 0) {
-        <button mat-stroked-button (click)="enrichAllPending()" [disabled]="bulkEnriching()">
-          <mat-icon>travel_explore</mat-icon>
-          未取得の地図情報を一括取得（{{ pending().length }}件）
-        </button>
-      }
     </div>
     <p class="muted count">登録数: {{ total() }} 件</p>
   </mat-card-content>
