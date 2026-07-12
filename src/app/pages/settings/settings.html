@@ -126,10 +126,24 @@
     </p>
 
     @if (user(); as u) {
-      <p>
-        <mat-icon inline>account_circle</mat-icon>
-        {{ u.email }} としてログイン中
-      </p>
+      <div class="account-row">
+        @if (u.photoURL) {
+          <img
+            class="account-avatar"
+            [src]="u.photoURL"
+            [alt]="u.displayName || u.email || 'アカウント'"
+            referrerpolicy="no-referrer"
+          />
+        } @else {
+          <mat-icon class="account-avatar-fallback">account_circle</mat-icon>
+        }
+        <div class="account-info">
+          @if (u.displayName) {
+            <p class="account-name">{{ u.displayName }}</p>
+          }
+          <p class="account-email muted">{{ u.email }}</p>
+        </div>
+      </div>
       <button mat-stroked-button color="warn" (click)="logout()">
         <mat-icon>logout</mat-icon>
         ログアウト

@@ -25,3 +25,38 @@
   margin: 0;
 }
 
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.account-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.account-avatar-fallback {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  flex-shrink: 0;
+}
+
+.account-info {
+  min-width: 0;
+}
+
+.account-name {
+  margin: 0;
+  font-weight: 500;
+}
+
+.account-email {
+  margin: 0;
+}
+
