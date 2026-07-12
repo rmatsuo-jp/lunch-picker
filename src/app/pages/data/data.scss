@@ -85,6 +85,57 @@
   color: var(--mat-sys-error);
 }
 
+.places-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+}
+
+.places-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+}
+
+.hours-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 8px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.hours-list {
+  margin: 2px 0 0 24px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+
+  li {
+    line-height: 1.5;
+  }
+}
+
+.places-types {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.type-chip {
+  font-size: 0.72rem;
+  padding: 1px 8px;
+}
+
 .tag-fields {
   display: flex;
   flex-wrap: wrap;

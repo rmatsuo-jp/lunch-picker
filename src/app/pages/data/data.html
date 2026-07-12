@@ -103,6 +103,51 @@
             }
           </div>
 
+          @if (r.places && !r.places.fetchError) {
+            <div class="places-detail">
+              @if (r.places.address) {
+                <div class="places-detail-row places-address">
+                  <mat-icon inline>location_on</mat-icon>
+                  <span>{{ r.places.address }}</span>
+                </div>
+              }
+              @if (r.places.priceLevel !== undefined) {
+                <div class="places-detail-row places-price">
+                  <mat-icon inline>payments</mat-icon>
+                  <span>{{ priceLevelText(r.places.priceLevel) }}</span>
+                </div>
+              }
+              @if (r.places.openingHoursText?.length) {
+                <div class="places-detail-row places-hours">
+                  <button
+                    mat-button
+                    class="hours-toggle"
+                    (click)="toggleHours(r)"
+                  >
+                    <mat-icon inline>schedule</mat-icon>
+                    営業時間
+                    <mat-icon inline>{{ expandedHours().has(r.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                  </button>
+                  @if (expandedHours().has(r.id)) {
+                    <ul class="hours-list">
+                      @for (line of r.places.openingHoursText; track line) {
+                        <li>{{ line }}</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
+              @if (r.places.types?.length) {
+                <div class="places-detail-row places-types">
+                  <mat-icon inline>sell</mat-icon>
+                  @for (t of r.places.types; track t) {
+                    <span class="type-chip chip-pill">{{ t }}</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+
           <div class="tag-fields">
             <mat-form-field appearance="outline" class="tag-field" subscriptSizing="dynamic">
               <mat-label>ジャンル</mat-label>

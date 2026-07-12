@@ -48,6 +48,8 @@ export class Data {
   readonly enriching = signal<Set<string>>(new Set());
   /** 一括取得の進行中フラグ。 */
   readonly bulkEnriching = signal(false);
+  /** 営業時間（曜日別）を展開表示中の店舗 ID 集合。 */
+  readonly expandedHours = signal<Set<string>>(new Set());
 
   /** ジャンル／気分の選択肢（選択式入力用）。 */
   readonly genreOptions = GENRE_OPTIONS;
@@ -197,6 +199,21 @@ export class Data {
     } finally {
       this.bulkEnriching.set(false);
     }
+  }
+
+  /** 営業時間（曜日別テキスト）の開閉トグル。 */
+  toggleHours(r: Restaurant): void {
+    this.expandedHours.update((set) => {
+      const next = new Set(set);
+      if (next.has(r.id)) next.delete(r.id);
+      else next.add(r.id);
+      return next;
+    });
+  }
+
+  /** Places の価格帯（0〜4）を「￥」表示に変換。 */
+  priceLevelText(level: number): string {
+    return level <= 0 ? '無料' : '￥'.repeat(level);
   }
 
   private notify(message: string): void {
