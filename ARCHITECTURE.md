@@ -30,7 +30,7 @@ flowchart TD
     end
 
     Models["models/\nRestaurant / RestaurantData\nGENRE_OPTIONS / MOOD_OPTIONS"]
-    LS[("localStorage\nlunch-picker.data.v1")]
+    LS[("localStorage\nlunch-roulette.data.v1")]
 
     Recommend -- "restaurants() / computed" --> Store
     Data -- "addMany() / update() / remove()" --> Store
@@ -69,7 +69,7 @@ flowchart TD
 - `addMany()`（重複排除しつつ追加）、`update()`、`remove()`、`clear()`、
   `toJson()` / `importJson()`（バックアップ用）を提供。
 - `effect()` が `restaurants()` の変化を監視し、`localStorage`
-  （キー: `lunch-picker.data.v1`）へ自動保存する。
+  （キー: `lunch-roulette.data.v1`）へ自動保存する。
 - **状態は必ずこの service 経由で操作する**という規約は、永続化ロジックを
   1箇所に集約し、コンポーネント側でストレージ形式を意識させないため。
 
@@ -107,8 +107,11 @@ flowchart TD
 - `src/version.ts`（`APP_VERSION`/`RELEASE_DATE`）はリリース時のみ
   `scripts/generate-version.mjs` が生成する（`npm start`/`build` では再生成しない）。
 - `.github/workflows/deploy.yml` — main への push で
-  semantic-release → ビルド（`--base-href=/lunch-picker/`）→
+  semantic-release → Firestore ルール（`firestore.rules`）を `firebase-tools deploy`
+  でデプロイ → ビルド（`--base-href=/lunch-roulette/`）→
   `index.html` を `404.html` にコピー → GitHub Pages へデプロイ。
+  Firestore ルールのデプロイには GitHub Secrets の `FIREBASE_TOKEN`
+  （`firebase login:ci` で発行）を使用する。
 
 ## 6. 今後の方針判断のための指針
 

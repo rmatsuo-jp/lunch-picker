@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "lunch-picker": {
+    "lunch-roulette": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -97,10 +97,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "lunch-picker:build:production"
+              "buildTarget": "lunch-roulette:build:production"
             },
             "development": {
-              "buildTarget": "lunch-picker:build:development"
+              "buildTarget": "lunch-roulette:build:development"
             }
           },
           "defaultConfiguration": "development"

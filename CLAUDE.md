@@ -68,17 +68,9 @@ Google Map の保存リスト（CSV）を取り込み、ジャンル・気分タ
 - 既定ポートは `angular.json` の `architect.serve.options.port` で **4202** に固定。
   （study-english=4200 / career-roadmap=4201 と分け、3システム同時起動を可能にするため）
 
-## 今後の対応（TODO）
-アプリ名を「ランチくじ（Lunch Roulette）」に変更した際、以下の技術識別子は
-既存ユーザーデータとの互換性・デプロイ設定変更のリスクを避けるため、あえて
-`lunch-picker` のまま据え置いた。将来的には段階的にこれらも新名称ベースへ
-統一すること。
-- `package.json` の `"name": "lunch-picker"`、`angular.json` のプロジェクト名
-  （`lunch-picker:build:production` 等のビルドターゲット）
-- `restaurant-store.ts` / `settings-store.ts` / `dev.ts` の localStorage キー
-  （`lunch-picker.data.v1` 等） — 変更するとブラウザ内の既存保存データが読めなくなる
-- `restaurant-sync.service.ts` / `firebase.init.ts` の Firestore 名前空間
-  `apps/lunch_picker` — 既存のクラウド同期データとの互換性のため
-- GitHub リポジトリ名・`CHANGELOG.md` 内のリポジトリURL（`--base-href=/lunch-picker/` 等の
-  デプロイ設定にも波及するため、リポジトリ名変更は別途計画して実施する）
+## 技術識別子の命名
+`package.json` / `angular.json` のプロジェクト名、localStorage キー、Firestore の
+名前空間 `apps/lunch_roulette`、GitHub リポジトリ名は、いずれもアプリ名に合わせて
+`lunch-roulette` / `lunch_roulette` に統一済み（開発中のため既存ユーザーデータの
+互換性は考慮不要と判断し、移行処理なしでリネームした）。
 </content>

@@ -43,16 +43,14 @@ export class RestaurantSyncService {
     });
   }
 
-  // apps/lunch_picker/users/{uid}/restaurants/{restaurantId} のドキュメント参照を返す。
-  // 先頭の apps/lunch_picker は、同一 Firebase プロジェクトを他アプリ（study-english 等）と
-  // 共用しても衝突しないための名前空間。
+  // apps/lunch_roulette/users/{uid}/restaurants/{restaurantId} のドキュメント参照を返す。
   private restaurantDoc(uid: string, restaurantId: string) {
-    return doc(firestore, 'apps', 'lunch_picker', 'users', uid, 'restaurants', restaurantId);
+    return doc(firestore, 'apps', 'lunch_roulette', 'users', uid, 'restaurants', restaurantId);
   }
 
-  // apps/lunch_picker/users/{uid}/restaurants コレクション参照を返す
+  // apps/lunch_roulette/users/{uid}/restaurants コレクション参照を返す
   private restaurantsCol(uid: string) {
-    return collection(firestore, 'apps', 'lunch_picker', 'users', uid, 'restaurants');
+    return collection(firestore, 'apps', 'lunch_roulette', 'users', uid, 'restaurants');
   }
 
   // Firestore は undefined を受け付けないため、値が undefined のフィールドを除外する。

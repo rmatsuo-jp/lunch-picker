@@ -115,7 +115,7 @@ export class Data {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `lunch-picker-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `lunch-roulette-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }

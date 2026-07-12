@@ -5,7 +5,7 @@
  */
 import { Injectable, computed, effect, signal } from '@angular/core';
 
-const STORAGE_KEY = 'lunch-picker.settings.v1';
+const STORAGE_KEY = 'lunch-roulette.settings.v1';
 
 /** ライト / ダーク / システム設定への追従。 */
 export type ThemePreference = 'light' | 'dark' | 'system';

@@ -11,7 +11,7 @@ import { RestaurantStore } from '../../services/restaurant-store';
 import { SettingsStore } from '../../services/settings-store';
 import { AuthService } from '../../core/firebase/auth.service';
 
-const RECENT_PICKS_KEY = 'lunch-picker.recent-picks.v1';
+const RECENT_PICKS_KEY = 'lunch-roulette.recent-picks.v1';
 
 @Component({
   selector: 'app-dev',
