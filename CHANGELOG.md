@@ -1,3 +1,18 @@
+# [0.6.0](https://github.com/rmatsuo-jp/lunch-roulette/compare/v0.5.0...v0.6.0) (2026-07-12)
+
+
+### Bug Fixes
+
+* スマホ幅でのレイアウト崩れを修正しページ間のカードスタイルを統一 ([d3c04a0](https://github.com/rmatsuo-jp/lunch-roulette/commit/d3c04a07622b1138aea241d10cc25ae3802a6053))
+
+
+### Features
+
+* おすすめタブに絞り込み結果を一覧表示する地図を追加 ([6d5d3fb](https://github.com/rmatsuo-jp/lunch-roulette/commit/6d5d3fb27a01d60a70ab204cd3df1ab809197d33))
+* サンプルデータ追加ボタンを実装 ([e7c8c7e](https://github.com/rmatsuo-jp/lunch-roulette/commit/e7c8c7e9fb46712e679f523a16e2ada99b352217))
+* 取り込み画面にPlaces詳細情報（住所・価格帯・営業時間・種別）を表示 ([c57fc3e](https://github.com/rmatsuo-jp/lunch-roulette/commit/c57fc3e49a2eaee6c1210c34024b3473c7e3a87a))
+* 設定画面のアカウント表示にGoogleアバターと表示名を追加 ([0d4f900](https://github.com/rmatsuo-jp/lunch-roulette/commit/0d4f9001a3f3bef67ee5244865b4524b39aeec02))
+
 # [0.5.0](https://github.com/rmatsuo-jp/lunch-roulette/compare/v0.4.0...v0.5.0) (2026-07-12)
 
 
